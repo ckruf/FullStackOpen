@@ -1,0 +1,21 @@
+title Submitting form (traditional)
+
+browser->server: HTTP POST request to /new_note containing form data (only content, not date) in request body
+note right of server: server creates new notes object and adds it to notes array
+server-->browser: HTTP response with code 302 - redirect to /notes
+browser->server: HTTP GET request to /notes
+server-->browser: HTML code
+browser->server: HTTP GET request to /main.css
+server-->browser: main.css
+browser->server: HTTP GET request to /main.js
+server-->browser: main.js
+note over browser:
+browser starts executing js-code
+that requests JSON data from server 
+end note
+browser->server: HTTP GET /data.json
+server-->browser: [{ content: "HTML is easy", date: "2019-05-23" }, ...]
+note over browser:
+browser executes the event handler
+that renders notes to display
+end note

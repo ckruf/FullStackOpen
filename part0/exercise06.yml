@@ -1,0 +1,12 @@
+title New note SPA
+
+note over browser:
+when submit button is clicked:
+browser creates note object with content and date
+note object is added to array
+note content is removed from textbox
+notes array is re-rendered on the page
+only then is POST request sent
+end note
+browser->server: HTTP POST request to /new_note_spa containing JSON payload with note and date
+server-->browser: JSON response {"message": "note created"}
