@@ -38,18 +38,6 @@ const App = () => {
     arraySetter(copy)
   }
 
-  const findIndexMax = (array) => {
-    let currentMax = 0
-    let maxIndex = 0
-    for (let i = 0; i < array.length; i++) {
-      if (array[i] > currentMax) {
-        currentMax = array[i]
-        maxIndex = i
-      }
-    }
-    return maxIndex
-  }
-
   const voteHandler = (index, value, array, arraySetter) => () => {
     setArrayValue(index, value, array, arraySetter)
     if (value > topVoteCount) {
