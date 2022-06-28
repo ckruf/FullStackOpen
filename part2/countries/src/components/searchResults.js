@@ -1,5 +1,12 @@
-const SearchResults = ({countries}) => {
+import Button from "./Button"
+
+const SearchResults = ({countries, setCountries}) => {
     let countryCount = countries.length
+
+    const filterSingleCountry = (countries, setCountries, cca3) => () => {
+        const singleCountryArray = countries.filter(country => country.cca3 === cca3)
+        setCountries(singleCountryArray)
+    }
 
     if (countryCount > 10) {
         return (
@@ -11,9 +18,14 @@ const SearchResults = ({countries}) => {
     else if (countryCount <= 10 && countryCount > 1) {
         return (
             <>
-            {countries.map(country =>
-                <p key={country.cca3}>{country.name.common}</p>
-                )}
+            {countries.map(country => {
+                return(
+                    <div key={country.ccn3}>
+                    <p>{country.name.common}</p>
+                    <Button buttonText="Show" onClickHandler={filterSingleCountry(countries, setCountries, country.cca3)}/>
+                    </div>
+                )
+            })}
             </>
         )
     }

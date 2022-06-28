@@ -39,7 +39,7 @@ const App = () => {
         filter shown with <Input value={searchQuery} onChangeHandler={InputStateSetter(setNewSearchQuery)} />
       </div>
       <div>
-        <SearchResults countries={countries} />
+        <SearchResults countries={countries} setCountries={setCountries} />
       </div>
     </div>
   );
