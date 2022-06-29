@@ -1,36 +1,20 @@
 import Button from "./Button"
 
-const SearchResults = ({countries, setCountries}) => {
+const SearchResults = ({countries, manuallySelectedCountry, setNewManualCountry, isLoading, isError}) => {
     let countryCount = countries.length
 
-    const filterSingleCountry = (countries, setCountries, cca3) => () => {
-        const singleCountryArray = countries.filter(country => country.cca3 === cca3)
-        setCountries(singleCountryArray)
+    const manualCountryBtnHandler = (countries, cca3, setNewManualCountry) => () => {
+        let countryObject = {}
+        for (const country of countries) {
+            if (country.cca3 === cca3) {
+                countryObject = country
+            }
+        }
+        setNewManualCountry(countryObject)
     }
 
-    if (countryCount > 10) {
-        return (
-            <>
-            <p>Too many matches, specify another filter</p>
-            </>
-        )
-    }
-    else if (countryCount <= 10 && countryCount > 1) {
-        return (
-            <>
-            {countries.map(country => {
-                return(
-                    <div key={country.ccn3}>
-                    <p>{country.name.common}</p>
-                    <Button buttonText="Show" onClickHandler={filterSingleCountry(countries, setCountries, country.cca3)}/>
-                    </div>
-                )
-            })}
-            </>
-        )
-    }
-    else if (countryCount === 1) {
-        let countryData = countries[0]
+    const displaySingleCountry = (countryData) => {
+        console.log("display single country", countryData.cca3)
         return (
             <>
             <h1>{countryData.name.common}</h1>
@@ -46,8 +30,56 @@ const SearchResults = ({countries, setCountries}) => {
                     )
                 }
             </ul>
+            <img src={countryData.flags.png} />
             </>
         )
+    }
+
+    if (isError) {
+        return (
+            <>
+            <p>Error in fetching API :(</p>
+            </>
+        )
+    }
+
+    if (isLoading) {
+        return (
+            <>
+            <p>Loading...</p>
+            </>
+        )
+    }
+
+    if (Object.keys(manuallySelectedCountry).length !== 0) {
+        return displaySingleCountry(manuallySelectedCountry)
+    } 
+
+
+    if (countryCount > 10) {
+        return (
+            <>
+            <p>Too many matches, specify another filter</p>
+            </>
+        )
+    }
+    else if (countryCount <= 10 && countryCount > 1) {
+        return (
+            <>
+            {countries.map(country => {
+                return(
+                    <div key={country.ccn3}>
+                    <p>{country.name.common}</p>
+                    <Button buttonText="Show" onClickHandler={manualCountryBtnHandler(countries, country.cca3, setNewManualCountry)}/>
+                    </div>
+                )
+            })}
+            </>
+        )
+    }
+    else if (countryCount === 1) {
+        let countryData = countries[0]
+        return displaySingleCountry(countryData)
     }
     // no countries come up in search
     else {
