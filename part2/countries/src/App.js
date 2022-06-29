@@ -9,15 +9,18 @@ const App = () => {
 
   const [searchQuery, setNewSearchQuery] = useState('')
 
-  const [manuallySelectedCountry, setNewManualCountry] = useState({})
+  const [manuallySelectedCountry, setNewSingleCountry] = useState({})
 
   const [isLoading, setIsLoading] = useState(false)
 
   const [isError, setIsError] = useState(false)
 
+  const [weather, setWeather] = useState({})
+
   const InputStateSetter = (setter) => (event) => setter(event.target.value)
 
-  const onFocusHandler = (setNewManualCountry) => () => setNewManualCountry({})
+  const onFocusHandler = (setNewSingleCountry) => () => setNewSingleCountry({})
+
 
   useEffect(() => {
     console.log("effect")
@@ -54,14 +57,34 @@ const App = () => {
   
   }, [searchQuery])
 
+  useEffect(() => {
+    if (countries.length === 1 || Object.keys(manuallySelectedCountry).length !== 0) {
+      let countryCapital = ""
+      if (countries.length === 1) {
+        let countryObject = countries[0]
+        countryCapital = countryObject.capital[0]
+      }
+      else {
+        countryCapital = manuallySelectedCountry.capital[0]
+      }
+
+      // TODO finish this fetch
+      axios
+      .get(`https://api.openweathermap.org/data/2.5/weather?q=${countryCapital}&appid=${process.env.REACT_APP_API_KEY}`)
+      .then(response => {
+
+      })
+    }
+  }, [countries, manuallySelectedCountry])
+
   return (
     <div>
       <h1>countries</h1>
       <div>
-        filter shown with <Input value={searchQuery} onChangeHandler={InputStateSetter(setNewSearchQuery)} onFocusHandler={onFocusHandler(setNewManualCountry)} />
+        filter shown with <Input value={searchQuery} onChangeHandler={InputStateSetter(setNewSearchQuery)} onFocusHandler={onFocusHandler(setNewSingleCountry)} />
       </div>
       <div>
-        <SearchResults countries={countries} manuallySelectedCountry={manuallySelectedCountry} setNewManualCountry={setNewManualCountry} isLoading={isLoading} isError={isError}/>
+        <SearchResults countries={countries} manuallySelectedCountry={manuallySelectedCountry} setNewSingleCountry={setNewSingleCountry} isLoading={isLoading} isError={isError} />
       </div>
     </div>
   );

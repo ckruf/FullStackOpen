@@ -1,16 +1,16 @@
 import Button from "./Button"
 
-const SearchResults = ({countries, manuallySelectedCountry, setNewManualCountry, isLoading, isError}) => {
+const SearchResults = ({countries, manuallySelectedCountry, setNewSingleCountry, isLoading, isError}) => {
     let countryCount = countries.length
 
-    const manualCountryBtnHandler = (countries, cca3, setNewManualCountry) => () => {
+    const manualCountryBtnHandler = (countries, cca3, setNewSingleCountry) => () => {
         let countryObject = {}
         for (const country of countries) {
             if (country.cca3 === cca3) {
                 countryObject = country
             }
         }
-        setNewManualCountry(countryObject)
+        setNewSingleCountry(countryObject)
     }
 
     const displaySingleCountry = (countryData) => {
@@ -30,7 +30,7 @@ const SearchResults = ({countries, manuallySelectedCountry, setNewManualCountry,
                     )
                 }
             </ul>
-            <img src={countryData.flags.png} />
+            <img src={countryData.flags.png} alt={countryData.name.commom + " flag"}/>
             </>
         )
     }
@@ -70,7 +70,7 @@ const SearchResults = ({countries, manuallySelectedCountry, setNewManualCountry,
                 return(
                     <div key={country.ccn3}>
                     <p>{country.name.common}</p>
-                    <Button buttonText="Show" onClickHandler={manualCountryBtnHandler(countries, country.cca3, setNewManualCountry)}/>
+                    <Button buttonText="Show" onClickHandler={manualCountryBtnHandler(countries, country.cca3, setNewSingleCountry)}/>
                     </div>
                 )
             })}
@@ -80,6 +80,7 @@ const SearchResults = ({countries, manuallySelectedCountry, setNewManualCountry,
     else if (countryCount === 1) {
         let countryData = countries[0]
         return displaySingleCountry(countryData)
+        // setNewSingleCountry(countryData)
     }
     // no countries come up in search
     else {
