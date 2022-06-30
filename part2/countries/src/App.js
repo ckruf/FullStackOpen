@@ -17,6 +17,10 @@ const App = () => {
 
   const [weather, setWeather] = useState({})
 
+  const [isLoadingWeather, setIsLoadingWeather] = useState(false)
+
+  const [isErrorWeather, setIsErrorWeather] = useState(false)
+
   const InputStateSetter = (setter) => (event) => setter(event.target.value)
 
   const onFocusHandler = (setNewSingleCountry) => () => setNewSingleCountry({})
@@ -58,7 +62,11 @@ const App = () => {
   }, [searchQuery])
 
   useEffect(() => {
+    console.log("weatherEffect")
     if (countries.length === 1 || Object.keys(manuallySelectedCountry).length !== 0) {
+      console.log("weatherEffect condition fulfilled")
+      setIsLoadingWeather(true)
+      setIsErrorWeather(false)
       let countryCapital = ""
       if (countries.length === 1) {
         let countryObject = countries[0]
@@ -68,11 +76,24 @@ const App = () => {
         countryCapital = manuallySelectedCountry.capital[0]
       }
 
-      // TODO finish this fetch
+      let url = `https://api.openweathermap.org/data/2.5/weather?q=${countryCapital}&appid=${process.env.REACT_APP_API_KEY}`
+      console.log("fetching weather at", url)
       axios
-      .get(`https://api.openweathermap.org/data/2.5/weather?q=${countryCapital}&appid=${process.env.REACT_APP_API_KEY}`)
+      .get(url)
       .then(response => {
-
+        if (response.status > 199 && response.status < 300) {
+          setIsLoadingWeather(false)
+          setWeather(response.data)
+        }
+        else {
+          setIsLoadingWeather(false)
+          setIsErrorWeather(true)
+          console.log("error in fetching weatherAPI")
+        }
+      }).catch(error => {
+        setIsLoadingWeather(false)
+        setIsErrorWeather(true)
+        console.log("error in fetching weather API")
       })
     }
   }, [countries, manuallySelectedCountry])
@@ -84,7 +105,8 @@ const App = () => {
         filter shown with <Input value={searchQuery} onChangeHandler={InputStateSetter(setNewSearchQuery)} onFocusHandler={onFocusHandler(setNewSingleCountry)} />
       </div>
       <div>
-        <SearchResults countries={countries} manuallySelectedCountry={manuallySelectedCountry} setNewSingleCountry={setNewSingleCountry} isLoading={isLoading} isError={isError} />
+        <SearchResults countries={countries} manuallySelectedCountry={manuallySelectedCountry} setNewSingleCountry={setNewSingleCountry}
+        isLoading={isLoading} isError={isError} weather={weather} isLoadingWeather={isLoadingWeather} isErrorWeather={isErrorWeather} />
       </div>
     </div>
   );

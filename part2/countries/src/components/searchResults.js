@@ -1,6 +1,19 @@
 import Button from "./Button"
+import WeatherDisplay from "./WeatherDisplay"
 
-const SearchResults = ({countries, manuallySelectedCountry, setNewSingleCountry, isLoading, isError}) => {
+const SearchResults = (props) => {
+    const {
+        countries,
+        manuallySelectedCountry,
+        setNewSingleCountry,
+        isLoading,
+        isError,
+        weather,
+        isLoadingWeather,
+        isErrorWeather
+    } = props
+
+
     let countryCount = countries.length
 
     const manualCountryBtnHandler = (countries, cca3, setNewSingleCountry) => () => {
@@ -13,8 +26,9 @@ const SearchResults = ({countries, manuallySelectedCountry, setNewSingleCountry,
         setNewSingleCountry(countryObject)
     }
 
-    const displaySingleCountry = (countryData) => {
+    const displaySingleCountry = (countryData, isLoadingWeather, isErrorWeather, weather) => {
         console.log("display single country", countryData.cca3)
+
         return (
             <>
             <h1>{countryData.name.common}</h1>
@@ -31,6 +45,7 @@ const SearchResults = ({countries, manuallySelectedCountry, setNewSingleCountry,
                 }
             </ul>
             <img src={countryData.flags.png} alt={countryData.name.commom + " flag"}/>
+            <WeatherDisplay  weather={weather} isErrorWeather={isErrorWeather} isLoadingWeather={isLoadingWeather} capital={countryData.capital}/>
             </>
         )
     }
@@ -52,7 +67,7 @@ const SearchResults = ({countries, manuallySelectedCountry, setNewSingleCountry,
     }
 
     if (Object.keys(manuallySelectedCountry).length !== 0) {
-        return displaySingleCountry(manuallySelectedCountry)
+        return displaySingleCountry(manuallySelectedCountry, isLoadingWeather, isErrorWeather, weather)
     } 
 
 
@@ -79,7 +94,7 @@ const SearchResults = ({countries, manuallySelectedCountry, setNewSingleCountry,
     }
     else if (countryCount === 1) {
         let countryData = countries[0]
-        return displaySingleCountry(countryData)
+        return displaySingleCountry(countryData, isLoadingWeather, isErrorWeather, weather)
         // setNewSingleCountry(countryData)
     }
     // no countries come up in search
