@@ -5,7 +5,7 @@ const App = () => {
   const[notes, setNotes] = useState([])
 
   const hook = () => {
-    console.log("effect")
+    console.log("effect hook")
     axios
     .get("http://localhost:3001/notes")
     .then(response => {
