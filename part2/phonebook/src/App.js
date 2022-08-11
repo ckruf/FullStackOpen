@@ -32,6 +32,15 @@ const App = () => {
       name: newName,
       number: newNumber
     }
+    axios
+    .post("http://localhost:3001/persons", personObject)
+    .then(response => {
+      console.log(response)
+    })
+    .catch(error => {
+      console.log(`Error while saving new contact: ${error}`)
+      alert("The contact was not saved to the server") 
+    })
     setPersons(persons.concat(personObject))
     setNewName('')
     setNewNumber('')
