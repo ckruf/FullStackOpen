@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import Input from "./components/Input";
 import ContactForm from "./components/ContactForm";
 import ContactList from "./components/ContactList";
-import axios from 'axios';
+import personService from "./services/persons"
+
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -11,12 +12,11 @@ const App = () => {
   const [searchQuery, setNewSearchQuery] = useState('')
 
   const get_persons_hook = () => {
-    console.log("effect")
-    axios
-    .get("http://localhost:3001/persons")
-    .then(response => {
-      console.log("promise fulfilled")
-      setPersons(response.data)
+    personService
+    .getAll()
+    .then(personsData => setPersons(personsData))
+    .catch(error => {
+      console.log(`Got an error while fetching contacts: ${error}`)
     })
   }
 
@@ -24,17 +24,40 @@ const App = () => {
 
   const addContact = (event) => {
     event.preventDefault()
-    if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to the phonebook`)
-      return
+    let potentiallyExisting = persons.find(person => person.name === newName)
+    if (potentiallyExisting != undefined) {
+      if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
+        const updatedPerson = {name: potentiallyExisting.name, number: newNumber}
+        personService
+        .update(potentiallyExisting.id, updatedPerson)
+        .then(responseData => {
+          setPersons(persons.map(person => person.id !== potentiallyExisting.id ? person : responseData))
+          setNewName('')
+          setNewNumber('')
+        })
+      }
+      else {
+        return
+      }
     }
-    const personObject = {
-      name: newName,
-      number: newNumber
+
+    else {
+      const personObject = {
+        name: newName,
+        number: newNumber
+      }
+  
+      personService
+      .create(personObject)
+      .then(responseData => {
+        setPersons(persons.concat(responseData))
+        setNewName('')
+        setNewNumber('')
+      })
+      .catch(error => {
+        console.error(`Got an error while adding contact to server: ${error}`)
+      })
     }
-    setPersons(persons.concat(personObject))
-    setNewName('')
-    setNewNumber('')
   }
 
   const InputStateSetter = (setter) => (event) => setter(event.target.value)
@@ -49,7 +72,7 @@ const App = () => {
       <ContactForm onSubmit={addContact} nameInputValue={newName} nameInputOnChange={InputStateSetter(setNewName)}
       numberInputValue={newNumber} numberInputOnChange={InputStateSetter(setNewNumber)} />
       <h2>Numbers</h2>
-      <ContactList persons={persons} searchQuery={searchQuery} />
+      <ContactList persons={persons} searchQuery={searchQuery} setPersons={setPersons} />
     </div>
   );
 }
