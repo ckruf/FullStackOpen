@@ -3,6 +3,7 @@ import Input from "./components/Input";
 import ContactForm from "./components/ContactForm";
 import ContactList from "./components/ContactList";
 import personService from "./services/persons"
+import InputStateSetter from "./common";
 
 
 const App = () => {
@@ -21,46 +22,6 @@ const App = () => {
   }
 
   useEffect(get_persons_hook, [])
-
-  const addContact = (event) => {
-    event.preventDefault()
-    let potentiallyExisting = persons.find(person => person.name === newName)
-    if (potentiallyExisting != undefined) {
-      if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
-        const updatedPerson = {name: potentiallyExisting.name, number: newNumber}
-        personService
-        .update(potentiallyExisting.id, updatedPerson)
-        .then(responseData => {
-          setPersons(persons.map(person => person.id !== potentiallyExisting.id ? person : responseData))
-          setNewName('')
-          setNewNumber('')
-        })
-      }
-      else {
-        return
-      }
-    }
-
-    else {
-      const personObject = {
-        name: newName,
-        number: newNumber
-      }
-  
-      personService
-      .create(personObject)
-      .then(responseData => {
-        setPersons(persons.concat(responseData))
-        setNewName('')
-        setNewNumber('')
-      })
-      .catch(error => {
-        console.error(`Got an error while adding contact to server: ${error}`)
-      })
-    }
-  }
-
-  const InputStateSetter = (setter) => (event) => setter(event.target.value)
   
   return (
     <div>
@@ -69,8 +30,8 @@ const App = () => {
         filter shown with <Input value={searchQuery} onChangeHandler={InputStateSetter(setNewSearchQuery)} />
       </div>
       <h2>add a new</h2>
-      <ContactForm onSubmit={addContact} nameInputValue={newName} nameInputOnChange={InputStateSetter(setNewName)}
-      numberInputValue={newNumber} numberInputOnChange={InputStateSetter(setNewNumber)} />
+      <ContactForm newName={newName} newNumber={newNumber}
+      setNewName={setNewName} setNewNumber={setNewNumber} persons={persons} setPersons={setPersons}/>
       <h2>Numbers</h2>
       <ContactList persons={persons} searchQuery={searchQuery} setPersons={setPersons} />
     </div>

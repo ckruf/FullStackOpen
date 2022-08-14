@@ -22,8 +22,13 @@
     },
     {
       "name": "Bara Havlickova",
-      "number": "987 654 321",
+      "number": "123 456 789",
       "id": 6
+    },
+    {
+      "name": "Tomas Hornicek",
+      "number": "123 456 789",
+      "id": 7
     }
   ]
 }
