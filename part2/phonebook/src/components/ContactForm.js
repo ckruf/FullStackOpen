@@ -2,7 +2,7 @@ import Input from "./Input"
 import InputStateSetter from "../common"
 import personService from "../services/persons"
 
-const ContactForm = ({newName, newNumber, setNewName, setNewNumber, persons, setPersons}) => {
+const ContactForm = ({newName, newNumber, setNewName, setNewNumber, persons, setPersons, setNotificationMsg}) => {
 
     const addContact = (event) => {
         event.preventDefault()
@@ -16,6 +16,10 @@ const ContactForm = ({newName, newNumber, setNewName, setNewNumber, persons, set
                 setPersons(persons.map(person => person.id !== potentiallyExisting.id ? person : responseData))
                 setNewName('')
                 setNewNumber('')
+                setNotificationMsg(`${responseData.name}'s number has been changed`)
+                setTimeout(() => {
+                    setNotificationMsg(null)
+                }, 5000)
             })
             }
             else {
@@ -35,6 +39,10 @@ const ContactForm = ({newName, newNumber, setNewName, setNewNumber, persons, set
             setPersons(persons.concat(responseData))
             setNewName('')
             setNewNumber('')
+            setNotificationMsg(`${responseData.name} has been added to phonebook`)
+            setTimeout(() => {
+                setNotificationMsg(null)
+            }, 5000)
             })
             .catch(error => {
             console.error(`Got an error while adding contact to server: ${error}`)
