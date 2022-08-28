@@ -9,7 +9,7 @@ const ContactForm = ({newName, newNumber, setNewName, setNewNumber, persons, set
         let potentiallyExisting = persons.find(person => person.name === newName)
         if (potentiallyExisting !== undefined) {
             if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
-            const updatedPerson = {name: potentiallyExisting.name, number: newNumber}
+            const updatedPerson = {number: newNumber}
             personService
             .update(potentiallyExisting.id, updatedPerson)
             .then(responseData => {
