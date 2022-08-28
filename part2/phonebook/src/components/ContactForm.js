@@ -8,11 +8,13 @@ const ContactForm = ({newName, newNumber, setNewName, setNewNumber, persons, set
         event.preventDefault()
         let potentiallyExisting = persons.find(person => person.name === newName)
         if (potentiallyExisting !== undefined) {
+            console.log("Potentially existing = ", potentiallyExisting);
             if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
             const updatedPerson = {number: newNumber}
             personService
             .update(potentiallyExisting.id, updatedPerson)
             .then(responseData => {
+                console.log("Response data = ", responseData);
                 setPersons(persons.map(person => person.id !== potentiallyExisting.id ? person : responseData))
                 setNewName('')
                 setNewNumber('')
@@ -21,9 +23,12 @@ const ContactForm = ({newName, newNumber, setNewName, setNewNumber, persons, set
                     setNotificationMsg(null)
                 }, 5000)
             })
+            .catch(error => {
+                console.log("Got an error while updating person: ", error);
+            })
             }
             else {
-            return
+                return
             }
         }
     
