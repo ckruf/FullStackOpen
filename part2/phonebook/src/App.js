@@ -43,7 +43,9 @@ const App = () => {
       setNewNumber={setNewNumber} 
       persons={persons} 
       setPersons={setPersons} 
-      setNotificationMsg={setNotificationMsg} />
+      setNotificationMsg={setNotificationMsg}
+      setErrorMsg={setErrorMsg}
+      />
       <h2>Numbers</h2>
       <ContactList 
       persons={persons} 
