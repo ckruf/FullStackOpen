@@ -1,0 +1,15 @@
+Set up mongo docker without creds:
+
+docker run --name <some name for your container> -d -p 27017:27017 mongo:latest
+
+explanation: -d runs the container in detached mode, meaning we are returned to our regular terminal prompt after typing the command, rather than going straight into the container's terminal
+
+-p maps the port of the container to the port on our machine
+
+to get to the container's terminal, we type docker exec -it <name of coantiner> bash
+
+On subsequent starts, we don't use run, but start:
+
+docker start <name of container>
+
+The connection string to use in applications using the MongoDB is then simply mongodb://localhost:27017
