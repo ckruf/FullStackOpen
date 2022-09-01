@@ -70,11 +70,39 @@ const blogsInDb = async () => {
     return blogs.map(blog => blog.toJSON());
 };
 
+const blogCountInDb = async () => {
+  const blogCount = await Blog.countDocuments();
+  return blogCount;
+}
+
+const randomBlogInDb = async () => {
+  const randomBlog = await Blog.findOne();
+  return randomBlog;
+}
+
+const nonExistingId = async () => {
+  const blog = new Blog({
+    title: "willremovethissoon",
+    author:"doesntmatter",
+    url: "wwww.yourmom.com",
+    likes: 1000
+   });
+  
+  await blog.save();
+  await blog.remove();
+  
+  return blog._id.toString();
+
+}
+
 module.exports = {
     initialBlogs,
     singleBlogComplete,
     singleBlogMissingLikes,
     singleBlogMissingTitle,
     singleBlogMissingUrl,
-    blogsInDb
+    blogsInDb,
+    blogCountInDb,
+    randomBlogInDb,
+    nonExistingId
 };

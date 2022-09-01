@@ -37,8 +37,7 @@ describe("GET /api/blogs", () => {
     });
 
     test("returns the correct number of objects", async () => {
-        const blogsInDb = await helper.blogsInDb();
-        const blogCountInDb = blogsInDb.length;
+        const blogCountInDb = await helper.blogCountInDb();
         const response = await api.get("/api/blogs");
         expect(response.body).toHaveLength(blogCountInDb);
     });
@@ -54,11 +53,9 @@ describe("GET /api/blogs", () => {
 
 describe("POST /api/blogs", () => {
     test("document count in DB increases by 1 when complete JSON is sent", async () => {
-        const blogsInDbBefore = await helper.blogsInDb();
-        const blogCountInDbBefore = blogsInDbBefore.length;
+        const blogCountInDbBefore = await helper.blogCountInDb();
         await api.post("/api/blogs").send(helper.singleBlogComplete);
-        const blogsInDbAfter = await helper.blogsInDb();
-        const blogCountInDbAfter = blogsInDbAfter.length;
+        const blogCountInDbAfter = await helper.blogCountInDb();
         const addedBlogs = blogCountInDbAfter - blogCountInDbBefore;
         expect(addedBlogs).toEqual(1);
     });
@@ -87,5 +84,29 @@ describe("POST /api/blogs", () => {
 
     test("responds with status code 400 when url is missing from request data", async () => {
         await api.post("/api/blogs").send(helper.singleBlogMissingUrl).expect(400);
+    });
+});
+
+describe("DELETE /api/blogs/:id", () => {
+    test("sends response with status code 204 when actual id is used", async () => {
+        const randomBlog = await helper.randomBlogInDb();
+        const id = randomBlog.id;
+        await api.delete(`/api/blogs/${id}`).expect(204);
+    });
+    test("count of documents in DB decreases by one when actual id is used", async () => {
+        const blogCountInDbBefore = await helper.blogCountInDb();
+        const randomBlog = await helper.randomBlogInDb();
+        const id = randomBlog.id;
+        await api.delete(`/api/blogs/${id}`);
+        const blogCountInDbAfter = await helper.blogCountInDb();
+        const removedBlogs = blogCountInDbBefore - blogCountInDbAfter;
+        expect(removedBlogs).toEqual(1);
+    });
+    test("sends response with status code 404 when using non existing legit ObjectId", async () => {
+        const id = await helper.nonExistingId();
+        await api.delete(`/api/blogs/${id}`).expect(404);
+    });
+    test("sends response with status code 400 when non legit Objectid is sent", async () => {
+        await api.delete("/api/blogs/bullshitID").expect(400);
     });
 });
