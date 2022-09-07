@@ -110,3 +110,66 @@ describe("DELETE /api/blogs/:id", () => {
         await api.delete("/api/blogs/bullshitID").expect(400);
     });
 });
+
+describe("PATCH /api/blogs/:id", () => {
+    test("sends response with 404 status code using non-existent legit ObjectId", async () => {
+        const id = await helper.nonExistingId();
+        await api.patch(`/api/blogs/${id}`).expect(404);
+    });
+
+    test("sends response with 400 status code when non legit ObjectId is sent", async () => {
+        await api.patch("/api/blogs/bulshitID").expect(400);
+    });
+
+    test("count of documents remains unchanged when sending empty body & existing ID", async () => {
+        const blogCountInDbBefore = await helper.blogCountInDb();
+        const randomBlog = await helper.randomBlogInDb();
+        const id = randomBlog.id;
+        await api.patch(`/api/blogs/${id}`);
+        const blogCountInDbAfter = await helper.blogCountInDb()
+        expect(blogCountInDbBefore).toEqual(blogCountInDbAfter);
+    });
+
+    test("likes update correctly when existing ID is sent and status code is 200", async () => {
+        const randomBlog = await helper.randomBlogInDb();
+        const id = randomBlog.id;
+        let likesBefore = randomBlog.likes;
+        let incrementedLikes = likesBefore + 1;
+        await api.patch(`/api/blogs/${id}`).send({likes: incrementedLikes}).expect(200);
+        const randomBlogUpdated = await helper.getBlogByIdInDb(id);
+        console.log("randomBlogUpdated is");
+        console.log(randomBlogUpdated);
+        expect(randomBlogUpdated.likes).toEqual(incrementedLikes);
+        expect(randomBlogUpdated.likes - randomBlog.likes).toEqual(1);
+    });
+
+    test("title, url, author and likes update correctly in db and status code is 200", async () => {
+        const randomBlog = await helper.randomBlogInDb();
+        const id = randomBlog.id;
+        await api.patch(`/api/blogs/${id}`).send(helper.singleBlogComplete).expect(200);
+        const randomBlogUpdated = await helper.getBlogByIdInDb(id);
+        expect(randomBlogUpdated.title).toEqual(helper.singleBlogComplete.title);
+        expect(randomBlogUpdated.author).toEqual(helper.singleBlogComplete.author);
+        expect(randomBlogUpdated.url).toEqual(helper.singleBlogComplete.url);
+        expect(randomBlogUpdated.likes).toEqual(helper.singleBlogComplete.likes);
+    });
+
+    test("title, url, author and likes update correctly in response and status code is 200", async () => {
+        const randomBlog = await helper.randomBlogInDb();
+        const id = randomBlog.id;
+        const response = await api.patch(`/api/blogs/${id}`).send(helper.singleBlogComplete).expect(200);
+        const updatedBlogResponse = response.body;
+        expect(updatedBlogResponse.title).toEqual(helper.singleBlogComplete.title);
+        expect(updatedBlogResponse.author).toEqual(helper.singleBlogComplete.author);
+        expect(updatedBlogResponse.url).toEqual(helper.singleBlogComplete.url);
+        expect(updatedBlogResponse.likes).toEqual(helper.singleBlogComplete.likes);
+    });
+
+    test("does not add attribute which is not part of model", async () => {
+        const randomBlog = await helper.randomBlogInDb();
+        const id = randomBlog.id;
+        await api.patch(`/api/blogs/${id}`).send({dislikes: 1000});
+        const updatedBlog = await helper.getBlogByIdInDb(id);
+        expect(updatedBlog.dislikes).toBeUndefined();
+    });
+});

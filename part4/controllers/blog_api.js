@@ -59,11 +59,14 @@ blogApiRouter.delete("/:id", async (req, res, next) => {
 blogApiRouter.patch("/:id", async (req, res, next) => {
     let id = req.params.id;
     try {
-        let updatedBlog = Blog.findByIdAndUpdate(
+        let updatedBlog = await Blog.findByIdAndUpdate(
             id,
             req.body,
-            {new: true, runValidators: true, conext: 'query'}
+            {new: true, runValidators: true, context: 'query'}
         );
+        if (!updatedBlog) {
+            return res.status(404).json({error: "Blog with given id not found"});
+        }
         return res.json(updatedBlog);
     }
     catch (error) {

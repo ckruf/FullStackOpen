@@ -80,6 +80,8 @@ const randomBlogInDb = async () => {
   return randomBlog;
 }
 
+const getBlogByIdInDb = async (id) => await Blog.findById(id);
+
 const nonExistingId = async () => {
   const blog = new Blog({
     title: "willremovethissoon",
@@ -104,5 +106,6 @@ module.exports = {
     blogsInDb,
     blogCountInDb,
     randomBlogInDb,
+    getBlogByIdInDb,
     nonExistingId
 };
