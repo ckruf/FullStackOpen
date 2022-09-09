@@ -1,10 +1,11 @@
 const blogApiRouter = require("express").Router();
 const Blog = require("../models/blog");
 const logger = require("../utils/logger");
+const { tokenExtractor, userExtractor } = require("../utils/middleware");
 
 blogApiRouter.get("", async (req, res, next) => {
     try {
-        let allBlogs = await Blog.find({});
+        let allBlogs = await Blog.find({}).populate('user');
         return res.json(allBlogs);
     }
     catch (error) {
@@ -13,8 +14,11 @@ blogApiRouter.get("", async (req, res, next) => {
     }
 });
 
-blogApiRouter.post("", async (req, res, next) => {
-    const newBlog = new Blog(req.body);
+blogApiRouter.post("", tokenExtractor, userExtractor, async (req, res, next) => {
+    const blogData = req.body;
+    blogData.user = req.user._id;
+
+    const newBlog = new Blog(blogData);
 
     try {
         let savedBlog = await newBlog.save();
@@ -27,8 +31,9 @@ blogApiRouter.post("", async (req, res, next) => {
 });
 
 
-blogApiRouter.delete("/:id", async (req, res, next) => {
+blogApiRouter.delete("/:id", tokenExtractor, userExtractor, async (req, res, next) => {
     let id = req.params.id;
+    // check if blog exists and if user matches token
     try {
         let potentialBlog = await Blog.findById(id);
         logger.info("potentialBlog: ", potentialBlog);
@@ -36,6 +41,9 @@ blogApiRouter.delete("/:id", async (req, res, next) => {
         if (!potentialBlog) {
             logger.info("No blog found with given id")
             return res.status(404).json({error: "Blog with given id does not exist"});
+        }
+        if (potentialBlog.user !== req.user._id.toString()) {
+            return res.status(403).json({error: "provided credentials do not match user who posted blog"});
         }
     }
     catch (error) {
@@ -58,8 +66,18 @@ blogApiRouter.delete("/:id", async (req, res, next) => {
 
 blogApiRouter.patch("/:id", async (req, res, next) => {
     let id = req.params.id;
+    // check if blog exists and if user matches token
     try {
-        let updatedBlog = await Blog.findByIdAndUpdate(
+        const potentialBlog = await Blog.findById(id);
+        if (!potentialBlog) {
+            
+        }
+    } 
+    catch (error) {
+
+    }
+    try {
+        const updatedBlog = await Blog.findByIdAndUpdate(
             id,
             req.body,
             {new: true, runValidators: true, context: 'query'}
