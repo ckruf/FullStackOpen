@@ -16,7 +16,7 @@ const tokenExtractor = (req, res, next) => {
     // get authorization header in request
     const authorization = req.get("authorization");
 
-    if (authorization && authorization.toLowerCase.startsWith("bearer ")) {
+    if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
         const encodedToken = authorization.substring(7);
         const decodedToken = jwt.verify(encodedToken, config.JWT_SECRET);
         if (!decodedToken.id) {

@@ -13,7 +13,9 @@ usersApiRouter.post("", async (req, res, next) => {
         return res.status(400).json({error: "password must be at least 3 characters"});
     }
     // check if user with given username already exists
-    let potentialUser = await User.find({username: username});
+    let potentialUser = await User.findOne({username: username});
+    logger.info("potentialUser is:");
+    logger.info(potentialUser);
 
     if (potentialUser) {
         return res.status(400).json({error: "this username already exists"});

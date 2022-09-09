@@ -6,6 +6,8 @@ const cors = require("cors");
 const logger = require("./utils/logger");
 const middleware = require("./utils/middleware");
 const blogApiRouter = require("./controllers/blog_api");
+const userApiRouter = require("./controllers/users_api");
+const loginApiRouter = require("./controllers/login_api");
 
 logger.info("Connecting to ", config.MONGODB_URI);
 
@@ -22,6 +24,8 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 app.use("/api/blogs", blogApiRouter);
+app.use("/api/users", userApiRouter);
+app.use("/api/login", loginApiRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

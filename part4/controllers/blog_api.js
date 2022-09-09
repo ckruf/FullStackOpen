@@ -40,7 +40,7 @@ blogApiRouter.delete("/:id", tokenExtractor, userExtractor, async (req, res, nex
         logger.info("potentialBlog: ", JSON.stringify(potentialBlog));
         if (!potentialBlog) {
             logger.info("No blog found with given id")
-            return res.status(404).json({error: "Blog with given id does not exist"});
+            return res.status(404).json({error: "blog with given id does not exist"});
         }
         if (potentialBlog.user !== req.user._id.toString()) {
             return res.status(403).json({error: "provided credentials do not match user who posted blog"});
@@ -64,17 +64,21 @@ blogApiRouter.delete("/:id", tokenExtractor, userExtractor, async (req, res, nex
 });
 
 
-blogApiRouter.patch("/:id", async (req, res, next) => {
+blogApiRouter.patch("/:id", tokenExtractor, userExtractor, async (req, res, next) => {
     let id = req.params.id;
     // check if blog exists and if user matches token
     try {
         const potentialBlog = await Blog.findById(id);
         if (!potentialBlog) {
-            
+            return res.status(404).json({error: "blog with given id not found"});
+        }
+        if (potentialBlog.user !== req.user._id.toString()) {
+            return res.status(403).json({error: "provided credentials do not match user who posted blog"});
         }
     } 
     catch (error) {
-
+        logger.error("Got an error while finding blog and checking user id");
+        next(error);
     }
     try {
         const updatedBlog = await Blog.findByIdAndUpdate(
@@ -82,9 +86,6 @@ blogApiRouter.patch("/:id", async (req, res, next) => {
             req.body,
             {new: true, runValidators: true, context: 'query'}
         );
-        if (!updatedBlog) {
-            return res.status(404).json({error: "Blog with given id not found"});
-        }
         return res.json(updatedBlog);
     }
     catch (error) {
