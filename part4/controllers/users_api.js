@@ -25,13 +25,20 @@ usersApiRouter.post("", async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     const user = new User({username, passwordHash, name});
-    const savedUser = await user.save();
 
-    return res.status(201).json(savedUser);
+    try {
+        const savedUser = await user.save();
+        return res.status(201).json(savedUser);
+    }
+    catch (error) {
+        logger.error("Got error while saving new user to db");
+        next(error);
+    }
+    
 });
 
 // get all users
-usersApiRouter.get("", async () => {
+usersApiRouter.get("", async (req, res, next) => {
     const allUsers = await User.find({}).populate('blogs');
     return res.json(allUsers);
 });

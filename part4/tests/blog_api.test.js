@@ -1,8 +1,10 @@
 const Blog = require("../models/blog");
+const User = require("../models/user");
 const helper = require("./test_helper");
 const mongoose = require("mongoose");
 const app = require("../app");
 const supertest = require("supertest");
+const bcrypt = require("bcrypt");
 
 // !!! Remember to start your docker MongoDB for testing first !!!
 
@@ -85,6 +87,18 @@ describe("POST /api/blogs", () => {
     test("responds with status code 400 when url is missing from request data", async () => {
         await api.post("/api/blogs").send(helper.singleBlogMissingUrl).expect(400);
     });
+
+    test("responds with status code 401 when authorization header not included", async () => {
+
+    });
+
+    test("responds with status code 401 when authorization header does not start wtih 'bearer'", async () => {
+
+    });
+
+    test("responds with status code 401 when invalid token is sent in authorization header", async () => {
+
+    });
 });
 
 describe("DELETE /api/blogs/:id", () => {
@@ -108,6 +122,22 @@ describe("DELETE /api/blogs/:id", () => {
     });
     test("sends response with status code 400 when non legit Objectid is sent", async () => {
         await api.delete("/api/blogs/bullshitID").expect(400);
+    });
+
+    test("responds with status code 401 when authorization header not included", async () => {
+
+    });
+
+    test("responds with status code 401 when authorization header does not start wtih 'bearer'", async () => {
+
+    });
+
+    test("responds with status code 401 when invalid token is sent in authorization header", async () => {
+
+    });
+
+    test("responds with status code 403 when user id in token does not match blog's 'user'", async () => {
+
     });
 });
 
@@ -171,5 +201,46 @@ describe("PATCH /api/blogs/:id", () => {
         await api.patch(`/api/blogs/${id}`).send({dislikes: 1000});
         const updatedBlog = await helper.getBlogByIdInDb(id);
         expect(updatedBlog.dislikes).toBeUndefined();
+    });
+
+    test("responds with status code 403 when user id in token does not match blog's 'user'", async () => {
+
+    });
+});
+
+describe("POST /api/users", () => {
+    test("saves user to db with correct username, name and password hash when reqs fulfilled", async () => {
+        await api.post("/api/users").send(helper.userCompliant);
+        const userInDb = await User.findOne({username: helper.userCompliant.username});
+    });
+
+    test("does not save user to db when username is less than 3 chars and sends 400 status code", async () => {
+
+    });
+
+    test("does not save user to db when password is less than 3 chars and send 400 status code", async () => {
+
+    });
+
+    test("does not save user to db when user with same username exists and sends 400 status code", async () => {
+
+    });
+
+    test("sends correct data and no password in response when reqs fulfilled", async () => {
+
+    });
+});
+
+describe("POST /api/login", () => {
+    test("responds with correct username, name, valid token and status code 200 when correct creds are given", async () => {
+
+    });
+
+    test("responds with status code 401 when invalid username is given", async () => {
+
+    });
+
+    test("responds with status code 401 when invalid password is given", async () => {
+
     });
 });

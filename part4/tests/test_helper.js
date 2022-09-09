@@ -1,4 +1,8 @@
 const Blog = require("../models/blog");
+const bcrypt = require("bcrypt");
+const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+const { default: mongoose } = require("mongoose");
 
 const initialBlogs = [
     {
@@ -65,6 +69,31 @@ const singleBlogMissingUrl = {
     likes: 10
 };
 
+// user whose username complies with reqs (3 char minimum username and password)
+const userCompliant = {
+  username: "testuser",
+  name: "John Doe",
+  password: "supersecret123"
+};
+
+const alternativeUserCompliant = {
+  username: "testuser2",
+  name: "Jane Doe",
+  password: "gigasecret321"
+}
+
+const userShortPassword = {
+  username: "testuser3",
+  name: "John Smith",
+  password: "js"
+}
+
+const userShortUsername = {
+  username: "tu",
+  name: "Andy Anderson",
+  password: "password"
+}
+
 const blogsInDb = async () => {
     const blogs = await Blog.find({});
     return blogs.map(blog => blog.toJSON());
@@ -97,6 +126,40 @@ const nonExistingId = async () => {
 
 }
 
+const saveUserToDb = async (user) => {
+  const saltRounds = 5;
+  const passwordHash = await bcrypt.hash(user.password, saltRounds);
+  const userCompliantHashed = new User({
+    username: user.username,
+    name: user.name,
+    passwordHash
+  });
+  await userCompliantHashed.save();
+}
+
+const getUserToken = async (user) => {
+  const userCompliant = await User.findOne({username: user.username});
+  const userInfoToken = {
+    username: user.username,
+    id: user._id
+  }
+  return jwt.sign(userInfoToken, config.JWT_SECRET);
+}
+
+const getInvalidUserToken = async () => {
+  const userInfoToken = {
+    username: "randomusername",
+    id: new mongoose.Types.ObjectId()
+  }
+
+  return jwt.sign(userInfoToken, "supersecretrandomstring");
+}
+
+const getUserIdFromUsername = async (username) => {
+  const user = await User.findOne({username: username});
+  return user._id;
+}
+
 module.exports = {
     initialBlogs,
     singleBlogComplete,
@@ -107,5 +170,13 @@ module.exports = {
     blogCountInDb,
     randomBlogInDb,
     getBlogByIdInDb,
-    nonExistingId
+    nonExistingId,
+    userCompliant,
+    alternativeUserCompliant,
+    userShortPassword,
+    userShortUsername,
+    saveUserToDb,
+    getUserToken,
+    getInvalidUserToken,
+    getUserIdFromUsername
 };

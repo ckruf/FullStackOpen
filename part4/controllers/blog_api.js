@@ -22,6 +22,8 @@ blogApiRouter.post("", tokenExtractor, userExtractor, async (req, res, next) => 
 
     try {
         let savedBlog = await newBlog.save();
+        req.user.blogs = req.user.blogs.concat(savedBlog._id);
+        await req.user.save();
         return res.status(201).json(savedBlog);
     }
     catch (error) {
@@ -36,13 +38,11 @@ blogApiRouter.delete("/:id", tokenExtractor, userExtractor, async (req, res, nex
     // check if blog exists and if user matches token
     try {
         let potentialBlog = await Blog.findById(id);
-        logger.info("potentialBlog: ", potentialBlog);
-        logger.info("potentialBlog: ", JSON.stringify(potentialBlog));
         if (!potentialBlog) {
             logger.info("No blog found with given id")
             return res.status(404).json({error: "blog with given id does not exist"});
         }
-        if (potentialBlog.user !== req.user._id.toString()) {
+        if (potentialBlog.user.toString() !== req.user._id.toString()) {
             return res.status(403).json({error: "provided credentials do not match user who posted blog"});
         }
     }
@@ -53,6 +53,8 @@ blogApiRouter.delete("/:id", tokenExtractor, userExtractor, async (req, res, nex
 
     try {
         await Blog.findByIdAndDelete(id);
+        req.user.blogs = req.user.blogs.filter(blogId => blogId.toString() !== id);
+        await req.user.save();
         return res.status(204).send();
     }
     catch (error)

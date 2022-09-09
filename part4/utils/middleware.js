@@ -13,6 +13,7 @@ const requestLogger = (req, res, next) => {
 };
 
 const tokenExtractor = (req, res, next) => {
+    logger.info("tokenExtractor middleware");
     // get authorization header in request
     const authorization = req.get("authorization");
 
@@ -27,11 +28,14 @@ const tokenExtractor = (req, res, next) => {
     else {
         return res.status(401).json({error: "authorization header not present or wrong format"});
     }
+    logger.info(`req.token: ${JSON.stringify(req.token)}`);
     next();
 }
 
 const userExtractor = async (req, res, next) => {
+    logger.info("userExtractor middleware");
     if (!req.token.id) {
+        logger.info("req.token.id undefined");
         return res.status(401).json({error: "invalid token"});
     }
 
@@ -40,6 +44,7 @@ const userExtractor = async (req, res, next) => {
         return res.status(404).json({error: "user not found"});
     }
     req.user = user;
+    logger.info(`req.user: ${JSON.stringify(req.user)}`);
     next();
 }
 
