@@ -1,11 +1,11 @@
 const Blog = require("../models/blog");
 const User = require("../models/user");
 const helper = require("./test_helper");
+const config = require("../utils/config");
 const mongoose = require("mongoose");
 const app = require("../app");
 const supertest = require("supertest");
 const bcrypt = require("bcrypt");
-const user = require("../models/user");
 const jwt = require("jsonwebtoken");
 
 // !!! Remember to start your docker MongoDB for testing first !!!
@@ -59,12 +59,10 @@ describe("GET /api/blogs", () => {
         const testUser = helper.userCompliant;
         const testBlog = helper.singleBlogComplete;
 
-        const userCompliant = new User(testUser);
-        const savedUser = await userCompliant.save();
-        const id = savedUser._id.toString();
-        testBlog.user = id;
-        const singleBlogComplete = new Blog(testBlog);
-        await singleBlogComplete.save();
+        const userId = await helper.saveUserToDb(testUser);
+        testBlog.user = userId;
+        const blog = new Blog(testBlog);
+        await blog.save();
         const response = await api.get("/api/blogs").expect(200);
         const testBlogResponse = response.body.find(blog => blog.title === testBlog.title);
         expect(testBlogResponse.user.username).toEqual(testUser.username);
@@ -79,8 +77,8 @@ describe("POST /api/blogs", () => {
 
         const blogCountInDbBefore = await helper.blogCountInDb();
         await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
-        await api.set("Authorization", `bearer ${userToken}`).post("/api/blogs").send(testBlog);
+        const userToken = await await helper.getUserToken(testUser);
+        await api.post("/api/blogs").set("Authorization", `bearer ${userToken}`).send(testBlog);
         const blogCountInDbAfter = await helper.blogCountInDb();
         const addedBlogs = blogCountInDbAfter - blogCountInDbBefore;
         expect(addedBlogs).toEqual(1);
@@ -91,12 +89,17 @@ describe("POST /api/blogs", () => {
         const testBlog = helper.singleBlogComplete;
         
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
-        await api.set("Authorization", `bearer ${userToken}`).post("/api/blogs").send(testBlog);
+        const userToken = await await helper.getUserToken(testUser);
+        await api.post("/api/blogs").set("Authorization", `bearer ${userToken}`).send(testBlog);
         const blogsInDb = await helper.blogsInDb();
+        const blogsInDbNoId = blogsInDb.map(blog => {
+            delete blog.id;
+            if (blog.user) blog.user = blog.user.toString();
+            return blog;
+        });
         // add user property to test blog, because POST endpoint adds it based on token
-        testBlog.user = userId;
-        expect(blogsInDb).toContainEqual(helper.singleBlogComplete);
+        testBlog.user = userId.toString();
+        expect(blogsInDbNoId).toContainEqual(testBlog);
     });
 
     test("sends correct data in response (including user id) for authorized user", async () => {
@@ -104,9 +107,9 @@ describe("POST /api/blogs", () => {
         const testBlog = helper.singleBlogComplete;
 
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
-        const response = await api.set("Authorization", `bearer ${userToken}`).post("/api/blogs").send(testBlog).expect(200);
-        const blogResponse = response.body.find(blog => blog.title === testBlog.title);
+        const userToken = await await helper.getUserToken(testUser);
+        const response = await api.post("/api/blogs").set("Authorization", `bearer ${userToken}`).send(testBlog).expect(201);
+        const blogResponse = response.body;
         expect(blogResponse.title).toEqual(testBlog.title);
         expect(blogResponse.author).toEqual(testBlog.author);
         expect(blogResponse.url).toEqual(testBlog.url);
@@ -116,11 +119,11 @@ describe("POST /api/blogs", () => {
 
     test("default 'likes' to 0 if missing from sent JSON (checked in DB, not response) for authorized user", async () => {
         const testUser = helper.userCompliant;
-        const testBlog = helper.singleBlogComplete;
+        const testBlog = helper.singleBlogMissingLikes;
         
         await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser); 
-        await api.set("Authorization", `bearer ${userToken}`).post("/api/blogs").send(testBlog);
+        const userToken = await await helper.getUserToken(testUser); 
+        await api.post("/api/blogs").set("Authorization", `bearer ${userToken}`).send(testBlog);
         const blogsInDb = await helper.blogsInDb();
         const addedBlog = blogsInDb.find(blog => {
             return (blog.title = testBlog.title
@@ -135,9 +138,9 @@ describe("POST /api/blogs", () => {
         const testBlog = helper.singleBlogComplete;
 
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
+        const userToken = await await helper.getUserToken(testUser);
 
-        await api.set("Authorization", `bearer ${userToken}`).post("/api/blogs").send(testBlog);
+        await api.post("/api/blogs").set("Authorization", `bearer ${userToken}`).send(testBlog);
         const testUserInDb = await User.findById(userId);
         const testBlogInDb = await Blog.findOne({title: testBlog.title});
         const testBlogId = testBlogInDb._id.toString();
@@ -151,8 +154,8 @@ describe("POST /api/blogs", () => {
         const testBlog = helper.singleBlogMissingTitle;
         
         await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
-        await api.set("Authorization", `bearer ${userToken}`).post("/api/blogs").send(testBlog).expect(400);
+        const userToken = await await helper.getUserToken(testUser);
+        await api.post("/api/blogs").set("Authorization", `bearer ${userToken}`).send(testBlog).expect(400);
     });
 
     test("responds with status code 400 when url is missing from request data for authorized user", async () => {
@@ -160,8 +163,8 @@ describe("POST /api/blogs", () => {
         const testBlog = helper.singleBlogMissingUrl;
 
         await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
-        await api.set("Authorization", `bearer ${userToken}`).post("/api/blogs").send(testBlog).expect(400);
+        const userToken = await await helper.getUserToken(testUser);
+        await api.post("/api/blogs").set("Authorization", `bearer ${userToken}`).send(testBlog).expect(400);
     });
 
     test("responds with status code 401 when authorization header not included", async () => {
@@ -174,14 +177,14 @@ describe("POST /api/blogs", () => {
         const testBlog = helper.singleBlogComplete;
 
         await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
-        await api.set("Authorization", userToken).post("/api/blogs").send(testBlog).expect(401);
+        const userToken = await await helper.getUserToken(testUser);
+        await api.post("/api/blogs").set("Authorization", userToken).send(testBlog).expect(401);
     });
 
     test("responds with status code 401 when invalid token is sent in authorization header", async () => {
         const testBlog = helper.singleBlogComplete;
         const invalidUserToken = helper.getInvalidUserToken();
-        await api.set("Authorization", `bearer ${invalidUserToken}`).post("/api/blogs").send(testBlog).expect(401);
+        await api.post("/api/blogs").set("Authorization", `bearer ${invalidUserToken}`).send(testBlog).expect(401);
     });
 
     test("responds with status code 401 when token with wrong secret is sent in authorizaton header", async () => {
@@ -190,7 +193,7 @@ describe("POST /api/blogs", () => {
 
         await helper.saveUserToDb(testUser);
         const invalidUserToken = await helper.getUserTokenWrongSecret(testUser);
-        await api.set("Authorization", `bearer ${invalidUserToken}`).post("/api/blogs").send(testBlog).expect(401);
+        await api.post("/api/blogs").set("Authorization", `bearer ${invalidUserToken}`).send(testBlog).expect(401);
     });
 });
 
@@ -204,44 +207,47 @@ describe("DELETE /api/blogs/:id", () => {
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
         const blogId = savedBlog._id.toString();
-        const userToken = helper.getUserToken(testUser)
-        await api.set("Authorization", `bearer ${userToken}`).delete(`/api/blogs/${blogId}`).expect(204);
+        const userToken = await helper.getUserToken(testUser)
+        await api.delete(`/api/blogs/${blogId}`).set("Authorization", `bearer ${userToken}`).expect(204);
     });
+
     test("count of documents in DB decreases by one when actual id is used and user is authorized", async () => {
         const testUser = helper.userCompliant;
         const testBlog = helper.singleBlogComplete;
 
-        const blogCountInDbBefore = await helper.blogCountInDb();
 
         const userId = await helper.saveUserToDb(testUser);
         testBlog.user = userId;
 
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
+        const blogCountInDbBefore = await helper.blogCountInDb();
         const blogId = savedBlog._id.toString();
 
-        const userToken = helper.getUserToken(testUser);
+        const userToken = await helper.getUserToken(testUser);
 
-        await api.set("Authorization", `bearer ${userToken}`).delete(`/api/blogs/${blogId}`);
+        await api.delete(`/api/blogs/${blogId}`).set("Authorization", `bearer ${userToken}`).expect(204);
         const blogCountInDbAfter = await helper.blogCountInDb();
         const removedBlogs = blogCountInDbBefore - blogCountInDbAfter;
         expect(removedBlogs).toEqual(1);
     });
+
     test("sends response with status code 404 when using non existing legit ObjectId", async () => {
         const testUser = helper.userCompliant;
         
         await helper.saveUserToDb(testUser);
-        const userToken = helper.getUserToken(testUser);
+        const userToken = await helper.getUserToken(testUser);
 
         const nonExistentBlogId = await helper.nonExistingId();
-        await api.set("Authorization", `bearer ${userToken}`).delete(`/api/blogs/${nonExistentBlogId}`).expect(404);
+        await api.delete(`/api/blogs/${nonExistentBlogId}`).set("Authorization", `bearer ${userToken}`).expect(404);
     });
+
     test("sends response with status code 400 when non legit Objectid is sent", async () => {
         const testUser = helper.userCompliant;
         await helper.saveUserToDb(testUser);
-        const userToken = helper.getUserToken(testUser);
+        const userToken = await helper.getUserToken(testUser);
         
-        await api.set("Authorization", `bearer ${userToken}`).delete("/api/blogs/bullshitID").expect(400);
+        await api.delete("/api/blogs/bullshitID").set("Authorization", `bearer ${userToken}`).expect(400);
     });
 
     test("responds with status code 401 when authorization header not included", async () => {
@@ -254,10 +260,10 @@ describe("DELETE /api/blogs/:id", () => {
         const testUser = helper.userCompliant;
 
         await helper.saveUserToDb(testUser);
-        const userToken = helper.getUserToken(testUser);
-        const randomBlog = helper.randomBlogInDb();
+        const userToken = await helper.getUserToken(testUser);
+        const randomBlog = await helper.randomBlogInDb();
         const randomBlogId = randomBlog._id.toString();
-        await api.set("Authorization", userToken).delete(`/api/blogs/${randomBlogId}`).expect(401);
+        await api.delete(`/api/blogs/${randomBlogId}`).set("Authorization", userToken).expect(401);
     });
 
     test("responds with status code 401 when invalid token is sent in authorization header", async () => {
@@ -271,7 +277,7 @@ describe("DELETE /api/blogs/:id", () => {
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
         const blogId = savedBlog._id.toString();
-        await api.set("Authorization", `bearer ${userToken}`).delete(`/api/blogs/${blogId}`).expect(401);
+        await api.delete(`/api/blogs/${blogId}`).set("Authorization", `bearer ${userToken}`).expect(401);
     });
 
     test("responds with status code 403 when user id in token does not match blog's 'user'", async () => {
@@ -280,17 +286,16 @@ describe("DELETE /api/blogs/:id", () => {
         const altTestUser = helper.alternativeUserCompliant;
         const testBlog = helper.singleBlogComplete;
 
-        const blogCountInDbBefore = await helper.blogCountInDb();
-
         const testUserId = await helper.saveUserToDb(testUser);
         await helper.saveUserToDb(altTestUser);
-        const altUserToken = helper.getUserToken(altTestUser);
+        const altUserToken = await helper.getUserToken(altTestUser);
 
         testBlog.user = testUserId;
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
+        const blogCountInDbBefore = await helper.blogCountInDb();
         const blogId = savedBlog._id.toString();
-        await api.set("Authorization", `bearer ${altUserToken}`).delete(`/api/blogs/${blogId}`).expect(403);
+        await api.delete(`/api/blogs/${blogId}`).set("Authorization", `bearer ${altUserToken}`).expect(403);
 
         const blogCountInDbAfter = await helper.blogCountInDb();
 
@@ -303,19 +308,19 @@ describe("PATCH /api/blogs/:id", () => {
         const testUser = helper.userCompliant;
 
         await helper.saveUserToDb(testUser);
-        const userToken = helper.getUserToken(testUser);
+        const userToken = await helper.getUserToken(testUser);
 
         const id = await helper.nonExistingId();
-        await api.set("Authorization", `bearer ${userToken}`).patch(`/api/blogs/${id}`).expect(404);
+        await api.patch(`/api/blogs/${id}`).set("Authorization", `bearer ${userToken}`).expect(404);
     });
 
     test("sends response with 400 status code when non legit ObjectId is sent", async () => {
         const testUser = helper.userCompliant;
 
         await helper.saveUserToDb(testUser);
-        const userToken = helper.getUserToken(testUser);
+        const userToken = await helper.getUserToken(testUser);
         
-        await api.set("Authorization", `bearer ${userToken}`).patch("/api/blogs/bulshitID").expect(400);
+        await api.patch("/api/blogs/bulshitID").set("Authorization", `bearer ${userToken}`).expect(400);
     });
 
     test("count of documents remains unchanged when sending empty body & existing ID", async () => {
@@ -323,14 +328,14 @@ describe("PATCH /api/blogs/:id", () => {
         const testBlog = helper.singleBlogComplete;
 
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = helper.getUserToken(testUser);
+        const userToken = await helper.getUserToken(testUser);
         testBlog.user = userId;
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
         const blogCountInDbBefore = await helper.blogCountInDb();
         
         const id = savedBlog._id.toString();
-        await api.set("Authorization", `bearer ${id}`).patch(`/api/blogs/${id}`).expect(200);
+        await api.patch(`/api/blogs/${id}`).set("Authorization", `bearer ${userToken}`).expect(200);
         const blogCountInDbAfter = await helper.blogCountInDb()
         expect(blogCountInDbBefore).toEqual(blogCountInDbAfter);
     });
@@ -340,7 +345,7 @@ describe("PATCH /api/blogs/:id", () => {
         const testBlog = helper.singleBlogComplete;
 
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = helper.getUserToken();
+        const userToken = await helper.getUserToken(testUser);
         testBlog.user = userId;
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
@@ -349,7 +354,7 @@ describe("PATCH /api/blogs/:id", () => {
         let likesBefore = testBlog.likes;
         let incrementedLikes = likesBefore + 1;
 
-        await api.set("Authorization", `bearer ${userToken}`).patch(`/api/blogs/${blogId}`).send({likes: incrementedLikes}).expect(200);
+        await api.patch(`/api/blogs/${blogId}`).set("Authorization", `bearer ${userToken}`).send({likes: incrementedLikes}).expect(200);
         const testBlogUpdated = await helper.getBlogByIdInDb(blogId);
         expect(testBlogUpdated.likes).toEqual(incrementedLikes);
         expect(testBlogUpdated.likes - testBlog.likes).toEqual(1);
@@ -361,13 +366,13 @@ describe("PATCH /api/blogs/:id", () => {
         const testBlogUpdate = helper.altSingleBlogComplete;
 
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
+        const userToken = await await helper.getUserToken(testUser);
         testBlog.user = userId;
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
         const blogId = savedBlog._id.toString();
         
-        await api.set("Authorization", `bearer ${userToken}`).patch(`/api/blogs/${blogId}`).send(testBlogUpdate).expect(200);
+        await api.patch(`/api/blogs/${blogId}`).set("Authorization", `bearer ${userToken}`).send(testBlogUpdate).expect(200);
         const updatedTestBlog = await helper.getBlogByIdInDb(blogId);
         expect(updatedTestBlog.title).toEqual(testBlogUpdate.title);
         expect(updatedTestBlog.author).toEqual(testBlogUpdate.author);
@@ -381,18 +386,18 @@ describe("PATCH /api/blogs/:id", () => {
         const testBlogUpdate = helper.altSingleBlogComplete;
 
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
+        const userToken = await await helper.getUserToken(testUser);
         testBlog.user = userId;
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
         const blogId = savedBlog._id.toString();
 
-        const response = await api.set("Authorization", `bearer ${userToken}`).patch(`/api/blogs/${blogId}`).send(testBlogUpdate).expect(200);
+        const response = await api.patch(`/api/blogs/${blogId}`).set("Authorization", `bearer ${userToken}`).send(testBlogUpdate).expect(200);
         const updatedBlogResponse = response.body;
         expect(updatedBlogResponse.title).toEqual(testBlogUpdate.title);
-        expect(updatedBlogResponse.author).toEqual(testBlog.author);
-        expect(updatedBlogResponse.url).toEqual(testBlog.url);
-        expect(updatedBlogResponse.likes).toEqual(testBlog.likes);
+        expect(updatedBlogResponse.author).toEqual(testBlogUpdate.author);
+        expect(updatedBlogResponse.url).toEqual(testBlogUpdate.url);
+        expect(updatedBlogResponse.likes).toEqual(testBlogUpdate.likes);
     });
 
     test("does not add attribute which is not part of model", async () => {
@@ -401,13 +406,13 @@ describe("PATCH /api/blogs/:id", () => {
         const testBlogUpdate = helper.altSingleBlogComplete;
 
         const userId = await helper.saveUserToDb(testUser);
-        const userToken = await helper.getUserToken(testUser);
+        const userToken = await await helper.getUserToken(testUser);
         testBlog.user = userId;
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
         const blogId = savedBlog._id.toString();
 
-        await api.set("Authorization", `bearer ${userToken}`).patch(`/api/blogs/${blogId}`).send({dislikes: 1000});
+        await api.patch(`/api/blogs/${blogId}`).set("Authorization", `bearer ${userToken}`).send({dislikes: 1000});
         const updatedBlog = await helper.getBlogByIdInDb(blogId);
         expect(updatedBlog.dislikes).toBeUndefined();
     });
@@ -420,14 +425,14 @@ describe("PATCH /api/blogs/:id", () => {
 
         const testUserId = await helper.saveUserToDb(testUser);
         await helper.saveUserToDb(altTestUser);
-        const altUserToken = helper.getUserToken(altTestUser);
+        const altUserToken = await helper.getUserToken(altTestUser);
 
         testBlog.user = testUserId;
         const blog = new Blog(testBlog);
         const savedBlog = await blog.save();
         const blogId = savedBlog._id.toString();
 
-        await api.set("Authorization", `bearer ${altUserToken}`).patch(`/api/blogs/${blogId}`).send({title: "New Title"}).expect(403);
+        await api.patch(`/api/blogs/${blogId}`).set("Authorization", `bearer ${altUserToken}`).send({title: "New Title"}).expect(403);
         const hopefullyNotUpdatedBlog = await helper.getBlogByIdInDb(blogId);
         expect(hopefullyNotUpdatedBlog.title).toEqual(testBlog.title);
     });
@@ -435,7 +440,7 @@ describe("PATCH /api/blogs/:id", () => {
     test("responds with status code 401 when authorization not included", async () => {
         const randomBlog = await helper.randomBlogInDb();
         const id = randomBlog._id.toString();
-        await api.patch(`/api/blogs/${id}`).expect(403);
+        await api.patch(`/api/blogs/${id}`).expect(401);
     });
 });
 
@@ -477,7 +482,7 @@ describe("POST /api/users", () => {
 
     test("sends correct data and no password in response when reqs fulfilled", async () => {
         const testUser = helper.userCompliant;
-        const response = await api.post("/api/users").expect(201);
+        const response = await api.post("/api/users").send(testUser).expect(201);
         expect(response.body.username).toEqual(testUser.username);
         expect(response.body.name).toEqual(testUser.name);
         expect(response.body.password).toBeUndefined();

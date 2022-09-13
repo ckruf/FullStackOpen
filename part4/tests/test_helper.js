@@ -1,4 +1,5 @@
 const Blog = require("../models/blog");
+const config = require("../utils/config");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
