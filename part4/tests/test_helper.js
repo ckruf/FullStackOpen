@@ -134,25 +134,36 @@ const saveUserToDb = async (user) => {
     name: user.name,
     passwordHash
   });
-  await userCompliantHashed.save();
+  const savedUser = await userCompliantHashed.save();
+  return savedUser._id.toString();
 }
 
 const getUserToken = async (user) => {
-  const userCompliant = await User.findOne({username: user.username});
+  const userInDb = await User.findOne({username: user.username});
   const userInfoToken = {
-    username: user.username,
-    id: user._id
+    username: userInDb.username,
+    id: userInDb._id
   }
   return jwt.sign(userInfoToken, config.JWT_SECRET);
 }
 
-const getInvalidUserToken = async () => {
+const getInvalidUserToken = () => {
   const userInfoToken = {
     username: "randomusername",
     id: new mongoose.Types.ObjectId()
   }
 
   return jwt.sign(userInfoToken, "supersecretrandomstring");
+}
+
+const getUserTokenWrongSecret = async (user) => {
+  const userInDb = await User.findOne({username: user.username});
+  const userInfoToken = {
+    username: userInDb.username,
+    id: userInDb._id
+  }
+
+  return jwt.sign(userInfoToken, "wrongsecret");
 }
 
 const getUserIdFromUsername = async (username) => {
@@ -178,5 +189,6 @@ module.exports = {
     saveUserToDb,
     getUserToken,
     getInvalidUserToken,
-    getUserIdFromUsername
+    getUserIdFromUsername,
+    getUserTokenWrongSecret
 };
