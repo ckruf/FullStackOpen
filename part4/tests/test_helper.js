@@ -48,7 +48,13 @@ const singleBlogComplete = {
     author: "Christian Kruf",
     url: "https://www.ckruf.com/oaijdwoja51qwd",
     likes: 10
+};
 
+const altSingleBlogComplete = {
+    title: "TDD harms architecture",
+    author: "Robert C. Martin",
+    url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+    likes: 0,
 };
 
 const singleBlogMissingLikes = {
@@ -174,6 +180,7 @@ const getUserIdFromUsername = async (username) => {
 module.exports = {
     initialBlogs,
     singleBlogComplete,
+    altSingleBlogComplete,
     singleBlogMissingLikes,
     singleBlogMissingTitle,
     singleBlogMissingUrl,
