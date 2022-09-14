@@ -75,7 +75,6 @@ blogApiRouter.patch("/:id", tokenExtractor, userExtractor, async (req, res, next
             return res.status(404).json({error: "blog with given id not found"});
         }
         if (potentialBlog.user.toString() !== req.user._id.toString()) {
-            console.log(req.user._id.toString());
             return res.status(403).json({error: "provided credentials do not match user who posted blog"});
         }
     } 
