@@ -2,8 +2,8 @@ import blogService from "../services/blog";
 import Input from "./Input";
 import InputStateSetter from "../common";
 
-const AddBlogForm = ({newBlogTitle,newBlogAuthor, newBlogUrl, setNewBlogTitle, setNewBlogAuthor, setNewBlogUrl, setBlogs, setNotificationMsg, setErrorMsg}) => {
-    const handleAddBlog = (event) => {
+const AddBlogForm = ({newBlogTitle,newBlogAuthor, newBlogUrl, blogs, setNewBlogTitle, setNewBlogAuthor, setNewBlogUrl, setBlogs, setNotificationMsg, setErrorMsg}) => {
+    const handleAddBlog = async (event) => {
         event.preventDefault();
         try {
             const newBlog = {
@@ -11,7 +11,7 @@ const AddBlogForm = ({newBlogTitle,newBlogAuthor, newBlogUrl, setNewBlogTitle, s
                 author: newBlogAuthor,
                 url: newBlogUrl
             }
-            const addedBlog = blogService.addNew(newBlog);
+            const addedBlog = await blogService.addNew(newBlog);
             setBlogs(blogs.concat(addedBlog));
             setNotificationMsg(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`)
             setTimeout(() => {
@@ -36,13 +36,16 @@ const AddBlogForm = ({newBlogTitle,newBlogAuthor, newBlogUrl, setNewBlogTitle, s
     return (
         <form onSubmit={handleAddBlog}>
             <div>
-                title: <Input value={newBlogTitle} onChangeHandler={InputStateSetter(setNewBlogTitle)} />
+                title: <Input type="text" value={newBlogTitle} onChangeHandler={InputStateSetter(setNewBlogTitle)} />
             </div>
             <div>
-                author: <Input value={newBlogAuthor} onChangeHandler={InputStateSetter(setNewBlogAuthor)} />
+                author: <Input type="text" value={newBlogAuthor} onChangeHandler={InputStateSetter(setNewBlogAuthor)} />
             </div>
             <div>
-                url: <Input value={newBlogUrl} onChangeHandler={InputStateSetter(setNewBlogUrl)} />
+                url: <Input type="text" value={newBlogUrl} onChangeHandler={InputStateSetter(setNewBlogUrl)} />
+            </div>
+            <div>
+                <button type="submit">add blog</button>
             </div>
         </form>
     )

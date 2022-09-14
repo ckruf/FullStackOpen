@@ -19,16 +19,23 @@ const App = () => {
   const [newBlogUrl, setNewBlogUrl] = useState("");
 
   const getBlogsHook = () => {
+
+    const getBlogs = async () => {
+        let blogs = await blogService.getAll();
+        setBlogs(blogs);
+    }
+
     try {
-      let blogs = blogService.getAll();
-      setBlogs(blogs);
-    } catch (error) {
+      getBlogs();
+    } 
+    catch (error) {
       console.error("Got error when fetching blogs ", error);
       setErrorMsg("Could not get blogs");
       setTimeout(() => {
         setErrorMsg(null);
       }, 5000)
     }
+    
   }
 
   useEffect(getBlogsHook, []);

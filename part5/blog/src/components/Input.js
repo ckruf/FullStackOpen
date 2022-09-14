@@ -1,5 +1,5 @@
-const Input = ({value, onChangeHandler}) => (
-    <input value={value} onChange={onChangeHandler} />
+const Input = ({type, value, onChangeHandler}) => (
+    <input type={type} value={value} onChange={onChangeHandler} />
 )
 
 export default Input;

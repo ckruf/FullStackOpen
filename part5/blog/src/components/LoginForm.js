@@ -4,10 +4,10 @@ import requestLogin from "../services/login";
 import blogService from "../services/blog";
 
 const LoginForm = ({username, password, setUsername, setPassword, setUser, setErrorMsg}) => {
-    const handleLogin = (event) => {
+    const handleLogin = async (event) => {
         event.preventDefault();
         try {
-            const user = requestLogin({username, password});
+            const user = await requestLogin({username, password});
             setUser(user);
             blogService.setToken(user.token);
             window.localStorage.setItem("loggedInUser", JSON.stringify(user));
@@ -31,10 +31,10 @@ const LoginForm = ({username, password, setUsername, setPassword, setUser, setEr
     return (
         <form onSubmit={handleLogin}>
             <div>
-                username: <Input value={username} onChangeHandler={InputStateSetter(setUsername)} />
+                username: <Input type="text" value={username} onChangeHandler={InputStateSetter(setUsername)} />
             </div>
             <div>
-                password: <Input value={password} onChangeHandler={InputStateSetter(setPassword)} />
+                password: <Input type="password" value={password} onChangeHandler={InputStateSetter(setPassword)} />
             </div>
             <div>
                 <button type="submit">login</button>
