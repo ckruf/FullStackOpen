@@ -68,6 +68,7 @@ blogApiRouter.delete("/:id", tokenExtractor, userExtractor, async (req, res, nex
 
 blogApiRouter.patch("/:id", tokenExtractor, userExtractor, async (req, res, next) => {
     let id = req.params.id;
+
     // check if blog exists and if user matches token
     try {
         const potentialBlog = await Blog.findById(id);
@@ -82,18 +83,19 @@ blogApiRouter.patch("/:id", tokenExtractor, userExtractor, async (req, res, next
         logger.error("Got an error while finding blog and checking user id");
         next(error);
     }
+
     try {
         const updatedBlog = await Blog.findByIdAndUpdate(
             id,
             req.body,
             {new: true, runValidators: true, context: 'query'}
         );
-        return res.json(updatedBlog);
+        return res.status(200).json(updatedBlog);
     }
     catch (error) {
-        logger.error("Error while updating blog");
+        logger.error(error);
         next(error);
     }
-})
+});
 
 module.exports = blogApiRouter;

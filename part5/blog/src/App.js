@@ -79,7 +79,7 @@ const App = () => {
               addBlog={addBlog}
             />
           </Togglable>
-          <BlogList blogs={blogs}/>
+          <BlogList blogs={blogs} setBlogs={setBlogs}/>
         </>
         )
     }

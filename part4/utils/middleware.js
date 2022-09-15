@@ -56,7 +56,8 @@ const userExtractor = async (req, res, next) => {
 }
 
 const unknownEndpoint = (req, res) => {
-    res.status(404).send({error: "unknown endpoint"});
+    logger.info("unknownEndpoint middleware");
+    return res.status(404).send({error: "unknown endpoint"});
 };
 
 const errorHandler = (error, req, res, next) => {
