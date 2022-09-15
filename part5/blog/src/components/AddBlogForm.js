@@ -1,9 +1,13 @@
-import blogService from "../services/blog";
+import { useState } from "react";
 import Input from "./Input";
 import InputStateSetter from "../common";
 
-const AddBlogForm = ({newBlogTitle,newBlogAuthor, newBlogUrl, blogs, setNewBlogTitle, setNewBlogAuthor, setNewBlogUrl, setBlogs, setNotificationMsg, setErrorMsg}) => {
-    const handleAddBlog = async (event) => {
+const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog}) => {
+    const [newBlogTitle, setNewBlogTitle] = useState("");
+    const [newBlogAuthor, setNewBlogAuthor] = useState("");
+    const [newBlogUrl, setNewBlogUrl] = useState("");
+
+    const handleBlogSubmit = async (event) => {
         event.preventDefault();
         try {
             const newBlog = {
@@ -11,8 +15,7 @@ const AddBlogForm = ({newBlogTitle,newBlogAuthor, newBlogUrl, blogs, setNewBlogT
                 author: newBlogAuthor,
                 url: newBlogUrl
             }
-            const addedBlog = await blogService.addNew(newBlog);
-            setBlogs(blogs.concat(addedBlog));
+            await addBlog(newBlog);
             setNotificationMsg(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`)
             setTimeout(() => {
                 setNotificationMsg(null);
@@ -32,9 +35,9 @@ const AddBlogForm = ({newBlogTitle,newBlogAuthor, newBlogUrl, blogs, setNewBlogT
             }, 8000);
         }
     }
-
+    
     return (
-        <form onSubmit={handleAddBlog}>
+        <form onSubmit={handleBlogSubmit}>
             <div>
                 title: <Input type="text" value={newBlogTitle} onChangeHandler={InputStateSetter(setNewBlogTitle)} />
             </div>

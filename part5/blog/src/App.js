@@ -1,22 +1,19 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect, useRef } from "react";
 import LoginForm from "./components/LoginForm";
 import AddBlogForm from "./components/AddBlogForm";
 import BlogList from "./components/BlogList";
 import Notification from "./components/Notification";
 import ErrorMsg from "./components/ErrorMsg";
 import LogoutElement from "./components/LogoutElement";
+import Togglable from "./components/Togglable";
 import blogService from "./services/blog";
 
 const App = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [notificationMsg, setNotificationMsg] = useState(null);
   const [blogs, setBlogs] = useState([]);
-  const [newBlogTitle, setNewBlogTitle] = useState("");
-  const [newBlogAuthor, setNewBlogAuthor] = useState("");
-  const [newBlogUrl, setNewBlogUrl] = useState("");
+
 
   const getBlogsHook = () => {
 
@@ -35,7 +32,6 @@ const App = () => {
         setErrorMsg(null);
       }, 5000)
     }
-    
   }
 
   useEffect(getBlogsHook, []);
@@ -52,7 +48,13 @@ const App = () => {
   // TODO consider adding user into array in second argument
   useEffect(getUserFromLocalStorageHook, []);
 
+  const addBlog = async (newBlog) => {
+    addBlogToggleRef.current.toggleVisibility();
+    const addedBlog = await blogService.addNew(newBlog);
+    setBlogs(blogs.concat(addedBlog));
+  }
 
+  const addBlogToggleRef = useRef();
 
   return (
     <div>
@@ -63,10 +65,6 @@ const App = () => {
 
       {user === null ? 
         <LoginForm 
-        username={username}
-        password={password}
-        setUsername={setUsername}
-        setPassword={setPassword}
         setUser={setUser}
         setErrorMsg={setErrorMsg}
         /> 
@@ -74,18 +72,13 @@ const App = () => {
         (
         <>
           <LogoutElement user={user} setUser={setUser} />
-          <AddBlogForm 
-          newBlogTitle={newBlogTitle}
-          newBlogAuthor={newBlogAuthor}
-          newBlogUrl={newBlogUrl}
-          blogs={blogs}
-          setNewBlogAuthor={setNewBlogAuthor}
-          setNewBlogTitle={setNewBlogTitle}
-          setNewBlogUrl={setNewBlogUrl}
-          setBlogs={setBlogs}
-          setNotificationMsg={setNotificationMsg}
-          setErrorMsg={setErrorMsg}
-          />
+          <Togglable buttonLabel="create new blog" ref={addBlogToggleRef}>
+            <AddBlogForm 
+              setNotificationMsg={setNotificationMsg}
+              setErrorMsg={setErrorMsg}
+              addBlog={addBlog}
+            />
+          </Togglable>
           <BlogList blogs={blogs}/>
         </>
         )
