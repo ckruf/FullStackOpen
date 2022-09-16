@@ -1,68 +1,49 @@
 import { useState } from "react";
-import blogService from "../services/blog";
+import PropTypes from "prop-types";
 
-const SingleBlog = ({blog, blogs, setBlogs, user}) => {
+const SingleBlog = ({ blog, user, likeBtnHandler, removeBtnHandler }) => {
     const [showComplete, setShowComplete] = useState(false);
 
     const blogStyle = {
         paddingTop: 10,
         paddingLeft: 2,
-        border: 'solid',
+        border: "solid",
         borderWidth: 1,
         marginBottom: 5
-      };
-
-      const likeBtnHandler = (id, newLikeCount) => async () => {
-        await blogService.updateLikes(id, newLikeCount);
-        setBlogs(blogs.map(blog => {
-            if (blog.id === id) {
-                return {...blog, likes: newLikeCount};
-            }
-            else {
-                return blog;
-            }
-        }));
-      }
-
-      const removeBtnHandler = (id, author, title) => async () => {
-        if (window.confirm(`Remove blog ${author} - ${title}?`)) {
-            await blogService.deleteById(id);
-            setBlogs(blogs.filter(blog => (blog.id !== id)));
-        }
-      }
+    };
 
     return (
-        <article key={blog.id} style={blogStyle}>
-            <div>
+        <article class="singleBlog" key={blog.id} style={blogStyle}>
+            <div class="basicInfo">
                 {blog.author} - {blog.title}
-                <button onClick={() => {setShowComplete(!showComplete)}}>
+                <button class="expandBtn" onClick={() => {setShowComplete(!showComplete)}}>
                     {showComplete ? "hide" : "view"}
                 </button>
             </div>
 
-            {showComplete ? 
-                (   <>
-                        <div>
+            {showComplete ?
+                (   <div class="extendedInfo">
+                        <div class="blogLink">
                             <a href={blog.url}>{blog.url}</a>
                         </div>
-                        <div>
+                        <div class="blogLikes">
                             likes {blog.likes}
-                            <button onClick={likeBtnHandler(blog.id, blog.likes + 1)}>
+                            <button class="likeBtn" onClick={likeBtnHandler(blog.id, blog.likes + 1)}>
                                 like
                             </button>
                         </div>
-                        <div>
+                        <div class="blogPoster">
                             posted by: {blog.user.name}
                         </div>
-                    </>
+                    </div>
                 )
                 : null
             }
 
             {showComplete && user.username === blog.user.username ?
                 (
-                    <div>
-                        <button onClick={removeBtnHandler(blog.id, blog.author, blog.title)}>
+                    <div class="blogRemover">
+                        <button class="removeBtn" onClick={removeBtnHandler(blog.id, blog.author, blog.title)}>
                             remove
                         </button>
                     </div>
@@ -70,7 +51,14 @@ const SingleBlog = ({blog, blogs, setBlogs, user}) => {
                 : null
             }
         </article>
-    )
+    );
+};
+
+SingleBlog.propTypes = {
+    blog: PropTypes.object.isRequired,
+    user: PropTypes.object.isRequired,
+    likeBtnHandler: PropTypes.func.isRequired,
+    removeBtnHandler: PropTypes.func.isRequired
 }
 
 export default SingleBlog;

@@ -10,4 +10,4 @@ export const isSorted = (blogArray) => {
     } 
     return true;
 
-}
+};

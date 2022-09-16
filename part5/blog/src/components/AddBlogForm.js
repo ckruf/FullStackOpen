@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Input from "./Input";
 import { InputStateSetter } from "../common";
+import PropTypes from "prop-types";
 
-const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog}) => {
+const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog }) => {
     const [newBlogTitle, setNewBlogTitle] = useState("");
     const [newBlogAuthor, setNewBlogAuthor] = useState("");
     const [newBlogUrl, setNewBlogUrl] = useState("");
@@ -14,9 +15,9 @@ const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog}) => {
                 title: newBlogTitle,
                 author: newBlogAuthor,
                 url: newBlogUrl
-            }
+            };
             await addBlog(newBlog);
-            setNotificationMsg(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`)
+            setNotificationMsg(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`);
             setTimeout(() => {
                 setNotificationMsg(null);
             }, 5000);
@@ -31,10 +32,10 @@ const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog}) => {
                 setErrorMsg("Adding blog failed");
             }
             setTimeout(() => {
-                setErrorMsg(null)
+                setErrorMsg(null);
             }, 8000);
         }
-    }
+    };
     
     return (
         <form onSubmit={handleBlogSubmit}>
@@ -51,7 +52,13 @@ const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog}) => {
                 <button type="submit">add blog</button>
             </div>
         </form>
-    )
-}
+    );
+};
+
+AddBlogForm.propTypes = {
+    setNotificationMsg: PropTypes.func.isRequired,
+    setErrorMsg: PropTypes.func.isRequired,
+    addBlog: PropTypes.func.isRequired
+};
 
 export default AddBlogForm;

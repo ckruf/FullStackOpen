@@ -4,14 +4,14 @@ import { InputStateSetter } from "../common";
 import requestLogin from "../services/login";
 import blogService from "../services/blog";
 
-const LoginForm = ({setUser, setErrorMsg}) => {
+const LoginForm = ({ setUser, setErrorMsg }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const handleLogin = async (event) => {
         event.preventDefault();
         try {
-            const user = await requestLogin({username, password});
+            const user = await requestLogin({ username, password });
             setUser(user);
             blogService.setToken(user.token);
             window.localStorage.setItem("loggedInUser", JSON.stringify(user));
@@ -28,10 +28,10 @@ const LoginForm = ({setUser, setErrorMsg}) => {
                 setErrorMsg("Login failed");
             }
             setTimeout(() => {
-                setErrorMsg(null)
+                setErrorMsg(null);
             }, 8000);
         }
-    }
+    };
     return (
         <form onSubmit={handleLogin}>
             <div>
@@ -44,7 +44,7 @@ const LoginForm = ({setUser, setErrorMsg}) => {
                 <button type="submit">login</button>
             </div>
         </form>
-    )
-}
+    );
+};
 
 export default LoginForm;
