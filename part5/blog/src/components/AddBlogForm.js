@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Input from "./Input";
-import InputStateSetter from "../common";
+import { InputStateSetter } from "../common";
 
 const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog}) => {
     const [newBlogTitle, setNewBlogTitle] = useState("");

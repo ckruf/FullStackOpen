@@ -1,7 +1,7 @@
 import { useState } from "react";
 import blogService from "../services/blog";
 
-const SingleBlog = ({blog, blogs, setBlogs}) => {
+const SingleBlog = ({blog, blogs, setBlogs, user}) => {
     const [showComplete, setShowComplete] = useState(false);
 
     const blogStyle = {
@@ -22,6 +22,13 @@ const SingleBlog = ({blog, blogs, setBlogs}) => {
                 return blog;
             }
         }));
+      }
+
+      const removeBtnHandler = (id, author, title) => async () => {
+        if (window.confirm(`Remove blog ${author} - ${title}?`)) {
+            await blogService.deleteById(id);
+            setBlogs(blogs.filter(blog => (blog.id !== id)));
+        }
       }
 
     return (
@@ -48,6 +55,17 @@ const SingleBlog = ({blog, blogs, setBlogs}) => {
                             posted by: {blog.user.name}
                         </div>
                     </>
+                )
+                : null
+            }
+
+            {showComplete && user.username === blog.user.username ?
+                (
+                    <div>
+                        <button onClick={removeBtnHandler(blog.id, blog.author, blog.title)}>
+                            remove
+                        </button>
+                    </div>
                 )
                 : null
             }

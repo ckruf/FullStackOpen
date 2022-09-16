@@ -7,6 +7,7 @@ import ErrorMsg from "./components/ErrorMsg";
 import LogoutElement from "./components/LogoutElement";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blog";
+import { isSorted } from "./common";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -45,12 +46,22 @@ const App = () => {
     }
   }
 
-  // TODO consider adding user into array in second argument
   useEffect(getUserFromLocalStorageHook, []);
+
+  // make sure blogs are sorted in descending order of likes
+  const keepBlogsSortedHook = () => {
+    if (!isSorted(blogs)) {
+      const blogsSorted = [...blogs].sort((a, b) => b.likes - a.likes);
+      setBlogs(blogsSorted);
+    }
+  }
+
+  useEffect(keepBlogsSortedHook, [blogs]);
 
   const addBlog = async (newBlog) => {
     addBlogToggleRef.current.toggleVisibility();
     const addedBlog = await blogService.addNew(newBlog);
+    addedBlog.user = {name: user.name, username: user.username};
     setBlogs(blogs.concat(addedBlog));
   }
 
@@ -79,7 +90,7 @@ const App = () => {
               addBlog={addBlog}
             />
           </Togglable>
-          <BlogList blogs={blogs} setBlogs={setBlogs}/>
+          <BlogList blogs={blogs} setBlogs={setBlogs} user={user}/>
         </>
         )
     }

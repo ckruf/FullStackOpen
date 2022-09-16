@@ -23,9 +23,17 @@ const addNew = async (newBlog) => {
 const updateLikes = async (id, newLikeCount) => {
     const config = {
         headers: {Authorization: token}
-    }
+    };
     const response = await axios.patch(`${baseUrl}/${id}`, {likes: newLikeCount}, config);
     return response.data;
 }
 
-export default {setToken, getAll, addNew, updateLikes};
+const deleteById = async (id) => {
+    const config = {
+        headers: {Authorization: token}
+    };
+    const response = await axios.delete(`${baseUrl}/${id}`, config);
+    return response.data;
+}
+
+export default {setToken, getAll, addNew, updateLikes, deleteById};
