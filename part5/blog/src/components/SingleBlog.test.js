@@ -41,13 +41,13 @@ describe("<SingleBlog />", () => {
 
     test("shows blog author and title in non-expanded view", async () => {
         screen.getByText(testBlog.author, { exact: false });
-        screen.getByText(testBlog.title), { exact: false };
+        screen.getByText(testBlog.title, { exact: false });
 
     });
     
     test("does not show likes, url and user in non-expanded view", () => {
-        const likes = screen.queryByText("likes");
-        const postedBy = screen.queryByText("posted by");
+        const likes = screen.queryByText("likes", { exact: false });
+        const postedBy = screen.queryByText("posted by", { exact: false });
         const urlDiv = singleBlog.container.querySelector(".blogLink"); 
 
         expect(likes).toBeNull();
@@ -62,8 +62,8 @@ describe("<SingleBlog />", () => {
         
         // findByText causes exception if nothing is found, so no need
         // to explicitly check for null
-        const likes = await screen.findByText("likes");
-        const postedBy = await screen.findByText("posted by");
+        await screen.findByText("likes", { exact: false });
+        await screen.findByText("posted by", { exact: false });
         const urlDiv = singleBlog.container.querySelector(".blogLink"); 
 
         expect(urlDiv).toBeDefined();
@@ -72,12 +72,12 @@ describe("<SingleBlog />", () => {
 
 // the below tests require different setup, than BeforeEach in above 'describe' block,
 // that's why they're separate
-
-describe("<SingleBlog /> like button", () => {
+describe("<SingleBlog /> like button - DEPENDENT ON BUTTON FOR EXPANDED VIEW - ", () => {
     let singleBlog;
     let mockLikeBtnHandler;
     let user;
     let likeBtn;
+    let expandBtn;
 
     beforeEach(() => {
         mockLikeBtnHandler = jest.fn();
@@ -91,68 +91,86 @@ describe("<SingleBlog /> like button", () => {
         );
         user = userEvent.setup();
         likeBtn = singleBlog.container.querySelector(".likeBtn");
+        expandBtn = singleBlog.container.querySelector(".expandBtn");
     });
 
     test("calls likeBtnHandler twice when button is clicked twice", async () => {
+        // expandBtn must also be working for test to pass
+        await user.click(expandBtn);
         await user.click(likeBtn);
         await user.click(likeBtn);
         expect(mockLikeBtnHandler.mock.calls).toHaveLength(2);
     });
 
-    test("<SingleBlog /> calls likeBtnHandler with the correct arguments", async () => {
+    test("calls likeBtnHandler with the correct arguments", async () => {
+        // expandBtn must also be working for test to pass
+        await user.click(expandBtn);
         let likeCount = testBlog.likes;
         await user.click(likeBtn);
         // called with two arguments
-        expect(mockLikeBtnHandler.mock.calls[0].toHaveLength(2));
+        expect(mockLikeBtnHandler.mock.calls[0]).toHaveLength(2);
         expect(mockLikeBtnHandler.mock.calls[0]).toContain(testBlog.id);
         expect(mockLikeBtnHandler.mock.calls[0]).toContain(likeCount + 1);
     });
 
-})
-
-
-test("<SingleBlog /> renders remove button when user is poster of blog", () => {
-    let singleBlog = render(
-        <SingleBlog
-            blog={testBlog}
-            user={matchingTestUser}
-            removeBtnHandler={jest.fn()}
-            likeBtnHandler={jest.fn()}
-        />
-    );
-    const removeBtn = singleBlog.container.querySelector(".removeBtn");
-    expect(removeBtn).toBeDefined();
 });
 
-test("<SingleBlog /> does not render remove button when user is not poster of blog", () => {
-    let singleBlog = render(
-        <SingleBlog
-            blog={testBlog}
-            user={testUser}
-            removeBtnHandler={jest.fn()}
-            likeBtnHandler={jest.fn()}
-        />
-    );
-    const removeBtn = singleBlog.container.querySelector(".removeBtn");
-    expect(removeBtn).toBeUndefined();
+test("<SingleBlog /> renders remove button when user is poster of blog (DEPENDEDNT ON BUTTON FOR EXPANDED VIEW",
+    async () => {
+        let singleBlog = render(
+            <SingleBlog
+                blog={testBlog}
+                user={matchingTestUser}
+                removeBtnHandler={jest.fn()}
+                likeBtnHandler={jest.fn()}
+            />
+        );
+        let user = userEvent.setup();
+        // expandBtn must also be working for test to pass
+        const expandBtn = singleBlog.container.querySelector(".expandBtn");
+        await user.click(expandBtn);
+        const removeBtn = singleBlog.container.querySelector(".removeBtn");
+        expect(removeBtn).toBeDefined();
 });
 
-test("<SingleBlog /> calls removeBtnHandler with correct arguments", async () => {
-    let mockRemoveBtnHandler = jest.fn();
-    let user = userEvent.setup();
-    let singleBlog = render(
-        <SingleBlog
-            blog={testBlog}
-            user={matchingTestUser}
-            removeBtnHandler={mockRemoveBtnHandler} 
-            likeBtnHandler={jest.fn()}
-        />
-    );
-    let removeBtn = singleBlog.container.querySelector(".removeBtn");
-    await user.click(removeBtn);
-    // called with three arguments
-    expect(mockRemoveBtnHandler.mock.calls[0]).toHaveLength(3);
-    expect(mockRemoveBtnHandler.mock.calls[0]).toContain(testBlog.id);
-    expect(mockRemoveBtnHandler.mock.calls[0]).toContain(testblog.author);
-    expect(mockRemoveBtnHandler.mock.calls[0]).toContain(testblog.title);
+test("<SingleBlog /> does not render remove button when user is not poster of blog (DEPENDENT ON BUTTON FOR EXPANDED VIEW",
+    async () => {
+        let singleBlog = render(
+            <SingleBlog
+                blog={testBlog}
+                user={testUser}
+                removeBtnHandler={jest.fn()}
+                likeBtnHandler={jest.fn()}
+            />
+        );
+        let user = userEvent.setup();
+        // expandBtn must also be working for test to pass
+        const expandBtn = singleBlog.container.querySelector(".expandBtn");
+        await user.click(expandBtn);
+        const removeBtn = singleBlog.container.querySelector(".removeBtn");
+        expect(removeBtn).toBeNull();
+});
+
+test("<SingleBlog /> calls removeBtnHandler with correct arguments (DEPENDENT ON BUTTON FOR EXPANDED VIEW)",
+    async () => {
+        let mockRemoveBtnHandler = jest.fn();
+        let user = userEvent.setup();
+        let singleBlog = render(
+            <SingleBlog
+                blog={testBlog}
+                user={matchingTestUser}
+                removeBtnHandler={mockRemoveBtnHandler} 
+                likeBtnHandler={jest.fn()}
+            />
+        );
+        // expandBtn must also be working for test to pass
+        const expandBtn = singleBlog.container.querySelector(".expandBtn");
+        await user.click(expandBtn);
+        let removeBtn = singleBlog.container.querySelector(".removeBtn");
+        await user.click(removeBtn);
+        // called with three arguments
+        expect(mockRemoveBtnHandler.mock.calls[0]).toHaveLength(3);
+        expect(mockRemoveBtnHandler.mock.calls[0]).toContain(testBlog.id);
+        expect(mockRemoveBtnHandler.mock.calls[0]).toContain(testBlog.author);
+        expect(mockRemoveBtnHandler.mock.calls[0]).toContain(testBlog.title);
 });
