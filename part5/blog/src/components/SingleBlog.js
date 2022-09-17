@@ -13,26 +13,26 @@ const SingleBlog = ({ blog, user, likeBtnHandler, removeBtnHandler }) => {
     };
 
     return (
-        <article class="singleBlog" key={blog.id} style={blogStyle}>
-            <div class="basicInfo">
+        <article className="singleBlog" key={blog.id} style={blogStyle}>
+            <div className="basicInfo">
                 {blog.author} - {blog.title}
-                <button class="expandBtn" onClick={() => {setShowComplete(!showComplete)}}>
+                <button className="expandBtn" onClick={() => {setShowComplete(!showComplete)}}>
                     {showComplete ? "hide" : "view"}
                 </button>
             </div>
 
             {showComplete ?
-                (   <div class="extendedInfo">
-                        <div class="blogLink">
+                (   <div className="extendedInfo">
+                        <div className="blogLink">
                             <a href={blog.url}>{blog.url}</a>
                         </div>
-                        <div class="blogLikes">
+                        <div className="blogLikes">
                             likes {blog.likes}
-                            <button class="likeBtn" onClick={likeBtnHandler(blog.id, blog.likes + 1)}>
+                            <button className="likeBtn" onClick={likeBtnHandler(blog.id, blog.likes + 1)}>
                                 like
                             </button>
                         </div>
-                        <div class="blogPoster">
+                        <div className="blogPoster">
                             posted by: {blog.user.name}
                         </div>
                     </div>
@@ -42,8 +42,8 @@ const SingleBlog = ({ blog, user, likeBtnHandler, removeBtnHandler }) => {
 
             {showComplete && user.username === blog.user.username ?
                 (
-                    <div class="blogRemover">
-                        <button class="removeBtn" onClick={removeBtnHandler(blog.id, blog.author, blog.title)}>
+                    <div className="blogRemover">
+                        <button className="removeBtn" onClick={removeBtnHandler(blog.id, blog.author, blog.title)}>
                             remove
                         </button>
                     </div>
