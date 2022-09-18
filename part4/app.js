@@ -27,6 +27,12 @@ app.use("/api/blogs", blogApiRouter);
 app.use("/api/users", userApiRouter);
 app.use("/api/login", loginApiRouter);
 
+// if we are running in test environment, expose testingApi EP for resetting database 
+if (process.env.NODE_ENV === "test") {
+    const testingApiRouter = require("./controllers/testing");
+    app.use("/api/testing", testingApiRouter);
+}
+
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 

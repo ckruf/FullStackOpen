@@ -102,7 +102,13 @@ const App = () => {
           (
           <>
             <LogoutElement user={user} setUser={setUser} />
-            <Togglable buttonLabel="create new blog" ref={addBlogToggleRef}>
+            <Togglable 
+              buttonLabel="create new blog"
+              ref={addBlogToggleRef}
+              showBtnId="createBlogBtn"
+              hideBtnId="cancelCreateBlogBtn"
+
+            >
               <AddBlogForm 
                 setNotificationMsg={setNotificationMsg}
                 setErrorMsg={setErrorMsg}

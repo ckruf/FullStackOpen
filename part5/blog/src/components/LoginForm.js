@@ -35,13 +35,23 @@ const LoginForm = ({ setUser, setErrorMsg }) => {
     return (
         <form onSubmit={handleLogin}>
             <div>
-                username: <Input type="text" value={username} onChangeHandler={InputStateSetter(setUsername)} />
+                username: <Input
+                            className="usernameInput"
+                            type="text"
+                            value={username}
+                            onChangeHandler={InputStateSetter(setUsername)} 
+                            />
             </div>
             <div>
-                password: <Input type="password" value={password} onChangeHandler={InputStateSetter(setPassword)} />
+                password: <Input
+                            className="passwordInput"
+                            type="password"
+                            value={password}
+                            onChangeHandler={InputStateSetter(setPassword)} 
+                            />
             </div>
             <div>
-                <button type="submit">login</button>
+                <button className="loginButton" type="submit">login</button>
             </div>
         </form>
     );

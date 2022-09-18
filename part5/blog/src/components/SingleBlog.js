@@ -27,7 +27,7 @@ const SingleBlog = ({ blog, user, likeBtnHandler, removeBtnHandler }) => {
                             <a href={blog.url}>{blog.url}</a>
                         </div>
                         <div className="blogLikes">
-                            likes {blog.likes}
+                            likes <span className="likeCount">{blog.likes}</span>
                             <button className="likeBtn" onClick={likeBtnHandler(blog.id, blog.likes + 1)}>
                                 like
                             </button>

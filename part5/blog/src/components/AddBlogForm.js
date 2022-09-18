@@ -21,6 +21,9 @@ const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog }) => {
             setTimeout(() => {
                 setNotificationMsg(null);
             }, 5000);
+            setNewBlogTitle("");
+            setNewBlogAuthor("");
+            setNewBlogUrl("");
         }
         catch (error) {
             console.error("Got an error while adding blog:");
@@ -40,16 +43,31 @@ const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog }) => {
     return (
         <form onSubmit={handleBlogSubmit}>
             <div>
-                title: <Input type="text" value={newBlogTitle} onChangeHandler={InputStateSetter(setNewBlogTitle)} />
+                title: <Input 
+                        className="titleInput"
+                        type="text"
+                        value={newBlogTitle}
+                        onChangeHandler={InputStateSetter(setNewBlogTitle)}
+                        />
             </div>
             <div>
-                author: <Input type="text" value={newBlogAuthor} onChangeHandler={InputStateSetter(setNewBlogAuthor)} />
+                author: <Input
+                            className="authorInput"
+                            type="text"
+                            value={newBlogAuthor}
+                            onChangeHandler={InputStateSetter(setNewBlogAuthor)} 
+                            />
             </div>
             <div>
-                url: <Input type="text" value={newBlogUrl} onChangeHandler={InputStateSetter(setNewBlogUrl)} />
+                url: <Input
+                        className="urlInput"
+                        type="text"
+                        value={newBlogUrl}
+                        onChangeHandler={InputStateSetter(setNewBlogUrl)}
+                        />
             </div>
             <div>
-                <button type="submit">add blog</button>
+                <button id="submitBlogBtn" type="submit">add blog</button>
             </div>
         </form>
     );

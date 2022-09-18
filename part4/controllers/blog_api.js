@@ -69,13 +69,17 @@ blogApiRouter.delete("/:id", tokenExtractor, userExtractor, async (req, res, nex
 blogApiRouter.patch("/:id", tokenExtractor, userExtractor, async (req, res, next) => {
     let id = req.params.id;
 
+    // anyone can update likes (like the blog), but only user who posted can change other attributes
+    // (obviously still non-sense, since IRL we wouldn't allow any user to just set likes to 1000, but whatever)
+    let sameUserRequired = req.body.title || req.body.author || req.body.url || req.body.user;
+
     // check if blog exists and if user matches token
     try {
         const potentialBlog = await Blog.findById(id);
         if (!potentialBlog) {
             return res.status(404).json({error: "blog with given id not found"});
         }
-        if (potentialBlog.user.toString() !== req.user._id.toString()) {
+        if (sameUserRequired && (potentialBlog.user.toString() !== req.user._id.toString())) {
             return res.status(403).json({error: "provided credentials do not match user who posted blog"});
         }
     } 

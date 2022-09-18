@@ -99,6 +99,9 @@ describe("<SingleBlog /> like button - DEPENDENT ON BUTTON FOR EXPANDED VIEW - "
         await user.click(expandBtn);
         await user.click(likeBtn);
         await user.click(likeBtn);
+        // .mock.calls contains array of arrays with passed arguments, 
+        // so if the given function was run twice, first with arguments "a", "b" and then
+        // with arguments "c", "d" then mock.calls would be [["a", "b"], ["c", "d"]]
         expect(mockLikeBtnHandler.mock.calls).toHaveLength(2);
     });
 
@@ -115,6 +118,7 @@ describe("<SingleBlog /> like button - DEPENDENT ON BUTTON FOR EXPANDED VIEW - "
 
 });
 
+// same comment as above applies - different setup requires test to be separate
 test("<SingleBlog /> renders remove button when user is poster of blog (DEPENDEDNT ON BUTTON FOR EXPANDED VIEW",
     async () => {
         let singleBlog = render(

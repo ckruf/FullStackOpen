@@ -14,6 +14,25 @@ test("<AddBlogForm /> calls passed addBlog function with correct arguments", asy
         />
     );
     let user = userEvent.setup();
-    // TODO - add class to inputs for title, author, url in AddBlogFrom component,
-    // so we can select the inputs in this test
+    
+    const testBlogData = {
+        title: "Blog test title",
+        author: "Blog test author",
+        url: "www.example.com"
+    }
+
+    const titleInput = addBlogForm.container.querySelector(".titleInput");
+    const authorInput = addBlogForm.container.querySelector(".authorInput");
+    const urlInput = addBlogForm.container.querySelector(".urlInput");
+    const submitBtn = screen.getByText("add blog");
+    
+    await user.type(titleInput, "Blog test title");
+    await user.type(authorInput, "Blog test author");
+    await user.type(urlInput, "www.example.com");
+    await user.click(submitBtn);
+    // .mock.calls contains array of arrays with passed arguments, 
+    // so if the given function was run twice, first with arguments "a", "b" and then
+    // with arguments "c", "d" then mock.calls would be [["a", "b"], ["c", "d"]]
+    expect(mockAddBlog.mock.calls).toHaveLength(1);
+    expect(mockAddBlog.mock.calls[0]).toContainEqual(testBlogData);
 });

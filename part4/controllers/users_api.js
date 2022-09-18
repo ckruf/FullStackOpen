@@ -38,8 +38,8 @@ usersApiRouter.post("", async (req, res, next) => {
 });
 
 // get all users
-usersApiRouter.get("", async (req, res, next) => {
-    const allUsers = await User.find({}).populate('blogs');
+usersApiRouter.get("", async (req, res) => {
+    const allUsers = await User.find({}).populate("blogs");
     return res.json(allUsers);
 });
 
