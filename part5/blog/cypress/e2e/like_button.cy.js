@@ -15,12 +15,14 @@ it("Clicking like button increments like count by one", function() {
     cy.loginTestUser();
     cy.visit(frontendBaseUrl);
     cy.get(".expandBtn").click();
-    cy.get(".likeCount").then((span) => {
+    cy.get(".likeCount")
+    .then((span) => {
         const likesBefore = parseInt(span.text());
-
-        cy.get(".likeBtn").click();
-        const likesAfter = parseInt(span.text());
-
-        expect(likesAfter).to.eq(likesBefore + 1);
-    })
-})
+        cy.get(".likeBtn")
+        .click()
+        .then(() => {
+            const likesAfter = parseInt(span.text());
+            expect(likesAfter).to.eq(likesBefore + 1);
+        });
+    });
+});

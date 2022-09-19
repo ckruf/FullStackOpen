@@ -47,13 +47,11 @@ Cypress.Commands.add("postTestBlog", () => {
     .then(response => {
         return cy.request({
             url: `${backendBaseUrl}/api/blogs`,
+            method: "POST",
             body: testBlogToAdd,
             headers: {
                 "Authorization": `bearer ${response.body.token}`
             }
-        })
-    })
-    .then(response => {
-        cy.log(response.body);
-    })
+        });
+    });
 });

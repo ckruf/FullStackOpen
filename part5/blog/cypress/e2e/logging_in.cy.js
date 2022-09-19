@@ -1,4 +1,4 @@
-import { frontendBaseUrl, testBlogToAdd } from "../support/testdata";
+import { frontendBaseUrl, testUser } from "../support/testdata";
 
 describe("Logging in via login form", function() {
     beforeEach(function() {

@@ -6,7 +6,7 @@ explanation: -d runs the container in detached mode, meaning we are returned to 
 
 -p maps the port of the container to the port on our machine
 
-to get to the container's terminal, we type docker exec -it <name of coantiner> bash
+to get to the container's terminal, we type docker exec -it <name of container> bash
 
 On subsequent starts, we don't use run, but start:
 
