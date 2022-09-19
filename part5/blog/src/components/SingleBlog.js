@@ -13,7 +13,7 @@ const SingleBlog = ({ blog, user, likeBtnHandler, removeBtnHandler }) => {
     };
 
     return (
-        <article className="singleBlog" key={blog.id} style={blogStyle}>
+        <article className="singleBlog" id={blog.id} style={blogStyle}>
             <div className="basicInfo">
                 {blog.author} - {blog.title}
                 <button className="expandBtn" onClick={() => {setShowComplete(!showComplete)}}>

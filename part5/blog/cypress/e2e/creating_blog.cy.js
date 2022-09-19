@@ -18,6 +18,8 @@ it("Blog can be added when user is authenticated", function() {
     cy.registerTestUser(testUser);
     cy.loginTestUser(testUser);
     cy.visit(frontendBaseUrl);
+    // blog not on page before adding
+    cy.contains(testBlogToAdd.title).should("not.exist");
     cy.get("#createBlogBtn").click();
     cy.get(".titleInput").type(testBlogToAdd.title);
     cy.get(".authorInput").type(testBlogToAdd.author);
@@ -29,5 +31,6 @@ it("Blog can be added when user is authenticated", function() {
     // add blog form gets hidden after submission
     cy.get("#shownWhenVisible")
     .should("have.css", "display", "none");
+    // blog on page after adding
     cy.contains(testBlogToAdd.title);
 });

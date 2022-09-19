@@ -11,18 +11,30 @@ Steps:
 it("Clicking like button increments like count by one", function() {
     cy.clearDB();
     cy.registerTestUser(testUser);
-    cy.postTestBlog(testUser, testBlogToAdd);
-    cy.loginTestUser(testUser);
-    cy.visit(frontendBaseUrl);
-    cy.get(".expandBtn").click();
-    cy.get(".likeCount")
-    .then((span) => {
-        const likesBefore = parseInt(span.text());
-        cy.get(".likeBtn")
-        .click()
-        .then(() => {
-            const likesAfter = parseInt(span.text());
-            expect(likesAfter).to.eq(likesBefore + 1);
-        });
-    });
+    cy.postTestBlog(testUser, testBlogToAdd)
+    .then(blogId => {
+        cy.loginTestUser(testUser);
+        cy.visit(frontendBaseUrl);
+        
+        cy
+        .get(`#${blogId}`)
+        .children(".basicInfo")
+        .children(".expandBtn")
+        .click();
+
+        cy
+        .get(`#${blogId}`)
+        .children(".extendedInfo")
+        .children(".blogLikes")
+        .children(".likeCount")
+        .then((span) => {
+            const likesBefore = parseInt(span.text());
+            cy.get(".likeBtn")
+            .click()
+            .then(() => {
+                const likesAfter = parseInt(span.text());
+                expect(likesAfter).to.eq(likesBefore + 1);
+                });
+            });
+        })
 });

@@ -24,7 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-import { backendBaseUrl } from "./testdata";
+import { backendBaseUrl, testBlogsVaryingLikes } from "./testdata";
 
 
 Cypress.Commands.add("clearDB", () => {
@@ -53,7 +53,23 @@ Cypress.Commands.add("postTestBlog", (postingUser, testBlogToAdd) => {
                 "Authorization": `bearer ${response.body.token}`
             }
         });
-    });
+    }).then(response => {
+        return response.body.id;
+    })
 });
 
-
+Cypress.Commands.add("postBlogsVariousLikes", (testUser) => {
+    cy.request("POST", `${backendBaseUrl}/api/login`, testUser)
+    .then(response => {
+        testBlogsVaryingLikes.forEach(blog => {
+            cy.request({
+                url: `${backendBaseUrl}/api/blogs`,
+                method: "POST",
+                body: blog,
+                headers: {
+                    "Authorization": `bearer ${response.body.token}`
+                }
+            });
+        });   
+    });
+});
