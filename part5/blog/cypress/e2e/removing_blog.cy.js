@@ -1,3 +1,5 @@
+import { frontendBaseUrl, testBlogToAdd, testUser, altTestUser } from "../support/testdata";
+
 /*
 Prep steps:
 1) clearDB
@@ -17,3 +19,35 @@ Test 2 - user who did not post blog can not delete it - steps:
 1) click expans button .expandBtn
 2) assert that removeBtn is NOT in the DOM (.removeBtn)
 */
+
+describe("Removing blog", function() {
+    beforeEach(function() {
+        cy.clearDB();
+    });
+
+    it("is possible for user who posted the blog", function() {
+        cy.registerTestUser(testUser);
+        cy.postTestBlog(testUser, testBlogToAdd);
+        cy.loginTestUser(testUser);
+        cy.visit(frontendBaseUrl);
+        // confirm the blog is shown on the page before deleting
+        cy.contains(testBlogToAdd.title);
+        cy.get(".expandBtn").click();
+        cy.get(".removeBtn").click();
+        cy.on('window:confirm', () => true);
+        // confirm the blog is not shown on the page after deleting 
+        cy.contains(testBlogToAdd.title).should("not.exist");
+    });
+
+    it("is not possible for user who did not post the blog", function() {
+        cy.registerTestUser(testUser);
+        cy.registerTestUser(altTestUser);
+        // post blog as testUser
+        cy.postTestBlog(testUser, testBlogToAdd);
+        // login as altTestUser - should not be able to delete the blog
+        cy.loginTestUser(altTestUser);
+        cy.visit(frontendBaseUrl);
+        cy.get(".expandBtn").click();
+        cy.get(".removeBtn").should("not.exist");
+    });
+});

@@ -24,26 +24,26 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-import { backendBaseUrl, testUser, testBlogToAdd } from "./testdata";
+import { backendBaseUrl } from "./testdata";
 
 
 Cypress.Commands.add("clearDB", () => {
     cy.request("DELETE", `${backendBaseUrl}/api/testing/reset`);
 });
 
-Cypress.Commands.add("registerTestUser", () => {
+Cypress.Commands.add("registerTestUser", (testUser) => {
     cy.request("POST", `${backendBaseUrl}/api/users`, testUser);
 });
 
-Cypress.Commands.add("loginTestUser", () => {
+Cypress.Commands.add("loginTestUser", (testUser) => {
     cy.request("POST", `${backendBaseUrl}/api/login`, testUser)
     .then(response => {
         localStorage.setItem("loggedInUser", JSON.stringify(response.body));
     });
 });
 
-Cypress.Commands.add("postTestBlog", () => {
-    cy.request("POST", `${backendBaseUrl}/api/login`, testUser)
+Cypress.Commands.add("postTestBlog", (postingUser, testBlogToAdd) => {
+    cy.request("POST", `${backendBaseUrl}/api/login`, postingUser)
     .then(response => {
         return cy.request({
             url: `${backendBaseUrl}/api/blogs`,
@@ -55,3 +55,5 @@ Cypress.Commands.add("postTestBlog", () => {
         });
     });
 });
+
+

@@ -1,4 +1,4 @@
-import { frontendBaseUrl, testBlogToAdd } from "../support/testdata";
+import { frontendBaseUrl, testBlogToAdd, testUser } from "../support/testdata";
 
 /*
 Steps:
@@ -15,8 +15,8 @@ Steps:
 
 it("Blog can be added when user is authenticated", function() {
     cy.clearDB();
-    cy.registerTestUser();
-    cy.loginTestUser();
+    cy.registerTestUser(testUser);
+    cy.loginTestUser(testUser);
     cy.visit(frontendBaseUrl);
     cy.get("#createBlogBtn").click();
     cy.get(".titleInput").type(testBlogToAdd.title);

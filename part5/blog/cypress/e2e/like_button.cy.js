@@ -1,4 +1,4 @@
-import { frontendBaseUrl } from "../support/testdata";
+import { frontendBaseUrl, testUser, testBlogToAdd } from "../support/testdata";
 
 /*
 Steps:
@@ -10,9 +10,9 @@ Steps:
 
 it("Clicking like button increments like count by one", function() {
     cy.clearDB();
-    cy.registerTestUser();
-    cy.postTestBlog();
-    cy.loginTestUser();
+    cy.registerTestUser(testUser);
+    cy.postTestBlog(testUser, testBlogToAdd);
+    cy.loginTestUser(testUser);
     cy.visit(frontendBaseUrl);
     cy.get(".expandBtn").click();
     cy.get(".likeCount")

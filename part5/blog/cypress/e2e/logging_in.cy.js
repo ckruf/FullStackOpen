@@ -3,7 +3,7 @@ import { frontendBaseUrl, testUser } from "../support/testdata";
 describe("Logging in via login form", function() {
     beforeEach(function() {
         cy.clearDB();
-        cy.registerTestUser();
+        cy.registerTestUser(testUser);
         cy.visit(frontendBaseUrl);
     });
 

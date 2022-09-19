@@ -1,0 +1,3 @@
+TODO
+- adjust tests for like button and removing blog such that they would work when multiple blogs are displayed on the page. This will require adding some unique id to the HTML elements containing each blog. That's easy enough, the question is how to then access the id in Cypress (for example if database id were chosen as the id of the element)
+- add the testing of AJAX requests to the Cypress tests (eg making sure that when like button is clicked, a request is sent to the right address in the backend, with the right request body) 

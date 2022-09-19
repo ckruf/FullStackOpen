@@ -7,10 +7,22 @@ const testUser = {
     "name": "Benjamin Franklin"
 };
 
+const altTestUser = {
+    "username": "anothertester",
+    "password": "alsosecret",
+    "name": "Thomas Jefferson"
+}
+
 const testBlogToAdd = {
     title: "Using Cypress for E2E testing",
     author: "Christian Kruf",
     url: "www.ckruf.com/qw65e4dq6wed"
 };
 
-export default { backendBaseUrl, frontendBaseUrl, testUser, testBlogToAdd };
+export default {
+    backendBaseUrl,
+    frontendBaseUrl,
+    testUser,
+    testBlogToAdd,
+    altTestUser
+};
