@@ -115,6 +115,7 @@ const App = () => {
                 addBlog={addBlog}
               />
             </Togglable>
+            <section id="blogs">
               {blogs.map(blog =>
                 <SingleBlog 
                   key={blog.id}
@@ -125,6 +126,7 @@ const App = () => {
                 />
               )
             }
+            </section>
           </>
           )
       }
