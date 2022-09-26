@@ -9,8 +9,12 @@ const notificationSlice = createSlice({
             return message;
         },
         clearNotification(state, action) {
-            console.log("clearNotification callled");
-            return null;
+            if (action.payload === state) {
+                return null;
+            }
+            else {
+                return state
+            }
         }
     }
 });
@@ -21,7 +25,7 @@ export const setNotification = (message, timeoutSecs) => {
     return dispatch => {
         dispatch(showNotification(message));
         setTimeout(() => {
-            dispatch(clearNotification());
+            dispatch(clearNotification(message));
         }, timeoutSecs * 1000);
     }
 };
