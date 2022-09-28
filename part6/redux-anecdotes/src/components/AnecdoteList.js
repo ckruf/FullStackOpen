@@ -6,7 +6,7 @@ const AnecdoteList = () => {
     const anecdotes = useSelector(state => 
         state.anecdotes.filter(anecdote => anecdote.content.toLowerCase().includes(state.filter.toLowerCase())));
     
-        const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
     const voteBtnHandler = (id, voteCount, anecdoteContent) => () => {
         console.log(`voteBtnHandler called with ${id} and ${anecdoteContent}`);
