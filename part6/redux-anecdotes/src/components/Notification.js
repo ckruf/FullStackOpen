@@ -7,14 +7,14 @@ const Notification = (props) => {
     borderWidth: 1
   }
 
-  if (props.notification === null) {
+  if (props.notification === null || props.notification.message === null) {
     return null;
   }
 
 
   return (
     <div style={style}>
-      {props.notification}
+      {props.notification.message}
     </div>
   )
 }

@@ -1,4 +1,6 @@
-const Notification = ({ message }) => {
+import { useSelector } from "react-redux";
+
+const Notification = () => {
   const notificationStyle = {
     color: "green",
     background: "lightgrey",
@@ -8,6 +10,19 @@ const Notification = ({ message }) => {
     padding: 10,
     marginBottom: 10,
   };
+
+  const message = useSelector(state => {
+    console.log("useSelector in Notification run, state is:")
+    console.log(state);
+    if (state.notification && state.notification.message){
+      console.log("condition entered, state.notification.message is:");
+      return state.notification.message
+    } else {
+      return null
+    }
+  })
+  console.log("message is:");
+  console.log(message);
 
   if (message === null) {
     return null;

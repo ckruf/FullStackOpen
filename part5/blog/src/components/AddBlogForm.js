@@ -2,11 +2,14 @@ import { useState } from "react";
 import Input from "./Input";
 import { InputStateSetter } from "../common";
 import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
+import { setNotification } from "../reducers/notificationReducer";
 
-const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog }) => {
+const AddBlogForm = ({setErrorMsg, addBlog }) => {
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogAuthor, setNewBlogAuthor] = useState("");
   const [newBlogUrl, setNewBlogUrl] = useState("");
+  const dispatch = useDispatch();
 
   const handleBlogSubmit = async (event) => {
     event.preventDefault();
@@ -17,10 +20,7 @@ const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog }) => {
         url: newBlogUrl,
       };
       await addBlog(newBlog);
-      setNotificationMsg(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`);
-      setTimeout(() => {
-        setNotificationMsg(null);
-      }, 5000);
+      dispatch(setNotification(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`, 5));
       setNewBlogTitle("");
       setNewBlogAuthor("");
       setNewBlogUrl("");
@@ -77,7 +77,6 @@ const AddBlogForm = ({ setNotificationMsg, setErrorMsg, addBlog }) => {
 };
 
 AddBlogForm.propTypes = {
-  setNotificationMsg: PropTypes.func.isRequired,
   setErrorMsg: PropTypes.func.isRequired,
   addBlog: PropTypes.func.isRequired,
 };

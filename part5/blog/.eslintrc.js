@@ -41,6 +41,7 @@ module.exports = {
         "object-curly-spacing": [
             "warn", "always"
         ],
+        "no-unused-vars": "warn",
         "arrow-spacing": [
             "warn", { "before": true, "after": true }
         ],

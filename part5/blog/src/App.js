@@ -12,7 +12,6 @@ import { isSorted } from "./common";
 const App = () => {
   const [user, setUser] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [notificationMsg, setNotificationMsg] = useState(null);
   const [blogs, setBlogs] = useState([]);
 
   const getBlogsHook = () => {
@@ -88,7 +87,7 @@ const App = () => {
     <div>
       <h1>Blogs</h1>
 
-      <Notification message={notificationMsg} />
+      <Notification />
       <ErrorMsg message={errorMsg} />
 
       {user === null ? (
@@ -103,7 +102,6 @@ const App = () => {
             hideBtnId="cancelCreateBlogBtn"
           >
             <AddBlogForm
-              setNotificationMsg={setNotificationMsg}
               setErrorMsg={setErrorMsg}
               addBlog={addBlog}
             />
