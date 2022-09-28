@@ -26,50 +26,52 @@
 
 import { backendBaseUrl, testBlogsVaryingLikes } from "./testdata";
 
-
 Cypress.Commands.add("clearDB", () => {
-    cy.request("DELETE", `${backendBaseUrl}/api/testing/reset`);
+  cy.request("DELETE", `${backendBaseUrl}/api/testing/reset`);
 });
 
 Cypress.Commands.add("registerTestUser", (testUser) => {
-    cy.request("POST", `${backendBaseUrl}/api/users`, testUser);
+  cy.request("POST", `${backendBaseUrl}/api/users`, testUser);
 });
 
 Cypress.Commands.add("loginTestUser", (testUser) => {
-    cy.request("POST", `${backendBaseUrl}/api/login`, testUser)
-    .then(response => {
-        localStorage.setItem("loggedInUser", JSON.stringify(response.body));
-    });
+  cy.request("POST", `${backendBaseUrl}/api/login`, testUser).then(
+    (response) => {
+      localStorage.setItem("loggedInUser", JSON.stringify(response.body));
+    }
+  );
 });
 
 Cypress.Commands.add("postTestBlog", (postingUser, testBlogToAdd) => {
-    cy.request("POST", `${backendBaseUrl}/api/login`, postingUser)
-    .then(response => {
-        return cy.request({
-            url: `${backendBaseUrl}/api/blogs`,
-            method: "POST",
-            body: testBlogToAdd,
-            headers: {
-                "Authorization": `bearer ${response.body.token}`
-            }
-        });
-    }).then(response => {
-        return response.body.id;
+  cy.request("POST", `${backendBaseUrl}/api/login`, postingUser)
+    .then((response) => {
+      return cy.request({
+        url: `${backendBaseUrl}/api/blogs`,
+        method: "POST",
+        body: testBlogToAdd,
+        headers: {
+          Authorization: `bearer ${response.body.token}`,
+        },
+      });
     })
+    .then((response) => {
+      return response.body.id;
+    });
 });
 
 Cypress.Commands.add("postBlogsVariousLikes", (testUser) => {
-    cy.request("POST", `${backendBaseUrl}/api/login`, testUser)
-    .then(response => {
-        testBlogsVaryingLikes.forEach(blog => {
-            cy.request({
-                url: `${backendBaseUrl}/api/blogs`,
-                method: "POST",
-                body: blog,
-                headers: {
-                    "Authorization": `bearer ${response.body.token}`
-                }
-            });
-        });   
-    });
+  cy.request("POST", `${backendBaseUrl}/api/login`, testUser).then(
+    (response) => {
+      testBlogsVaryingLikes.forEach((blog) => {
+        cy.request({
+          url: `${backendBaseUrl}/api/blogs`,
+          method: "POST",
+          body: blog,
+          headers: {
+            Authorization: `bearer ${response.body.token}`,
+          },
+        });
+      });
+    }
+  );
 });

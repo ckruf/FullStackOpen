@@ -1,4 +1,9 @@
-import { frontendBaseUrl, testBlogToAdd, testUser, altTestUser } from "../support/testdata";
+import {
+  frontendBaseUrl,
+  testBlogToAdd,
+  testUser,
+  altTestUser,
+} from "../support/testdata";
 
 /*
 Prep steps:
@@ -20,59 +25,50 @@ Test 2 - user who did not post blog can not delete it - steps:
 2) assert that removeBtn is NOT in the DOM (.removeBtn)
 */
 
-describe("Removing blog", function() {
-    beforeEach(function() {
-        cy.clearDB();
+describe("Removing blog", function () {
+  beforeEach(function () {
+    cy.clearDB();
+  });
+
+  it("is possible for user who posted the blog", function () {
+    cy.registerTestUser(testUser);
+    cy.postTestBlog(testUser, testBlogToAdd).then((blogId) => {
+      cy.loginTestUser(testUser);
+      cy.visit(frontendBaseUrl);
+      // confirm the blog is shown on the page before deleting
+      cy.contains(testBlogToAdd.title);
+
+      cy.get(`#${blogId}`)
+        .children(".basicInfo")
+        .children(".expandBtn")
+        .click();
+
+      cy.get(`#${blogId}`)
+        .children(".blogRemover")
+        .children(".removeBtn")
+        .click();
+
+      cy.on("window:confirm", () => true);
+      // confirm the blog is not shown on the page after deleting
+      cy.contains(testBlogToAdd.title).should("not.exist");
     });
+  });
 
-    it("is possible for user who posted the blog", function() {
-        cy.registerTestUser(testUser);
-        cy.postTestBlog(testUser, testBlogToAdd)
-        .then(blogId => {
-            cy.loginTestUser(testUser);
-            cy.visit(frontendBaseUrl);
-            // confirm the blog is shown on the page before deleting
-            cy.contains(testBlogToAdd.title);
+  it("is not possible for user who did not post the blog", function () {
+    cy.registerTestUser(testUser);
+    cy.registerTestUser(altTestUser);
+    // post blog as testUser
+    cy.postTestBlog(testUser, testBlogToAdd).then((blogId) => {
+      // login as altTestUser - should not be able to delete the blog
+      cy.loginTestUser(altTestUser);
+      cy.visit(frontendBaseUrl);
 
-            cy
-            .get(`#${blogId}`)
-            .children(".basicInfo")
-            .children(".expandBtn")
-            .click();
-            
-            cy
-            .get(`#${blogId}`)
-            .children(".blogRemover")
-            .children(".removeBtn")
-            .click();
+      cy.get(`#${blogId}`)
+        .children(".basicInfo")
+        .children(".expandBtn")
+        .click();
 
-            cy.on('window:confirm', () => true);
-            // confirm the blog is not shown on the page after deleting 
-            cy.contains(testBlogToAdd.title).should("not.exist");
-        });   
+      cy.get(`#${blogId}`).children(".blogRemover").should("not.exist");
     });
-
-    it("is not possible for user who did not post the blog", function() {
-        cy.registerTestUser(testUser);
-        cy.registerTestUser(altTestUser);
-        // post blog as testUser
-        cy.postTestBlog(testUser, testBlogToAdd)
-        .then(blogId => {
-            // login as altTestUser - should not be able to delete the blog
-            cy.loginTestUser(altTestUser);
-            cy.visit(frontendBaseUrl);
-
-            cy
-            .get(`#${blogId}`)
-            .children(".basicInfo")
-            .children(".expandBtn")
-            .click();
-
-            cy
-            .get(`#${blogId}`)
-            .children(".blogRemover")
-            .should("not.exist");
-        })
-        
-    });
+  });
 });

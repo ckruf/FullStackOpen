@@ -13,24 +13,23 @@ Steps:
 6) test that blog gets added to list of blogs (element containing blog title can be found on page)
 */
 
-it("Blog can be added when user is authenticated", function() {
-    cy.clearDB();
-    cy.registerTestUser(testUser);
-    cy.loginTestUser(testUser);
-    cy.visit(frontendBaseUrl);
-    // blog not on page before adding
-    cy.contains(testBlogToAdd.title).should("not.exist");
-    cy.get("#createBlogBtn").click();
-    cy.get(".titleInput").type(testBlogToAdd.title);
-    cy.get(".authorInput").type(testBlogToAdd.author);
-    cy.get(".urlInput").type(testBlogToAdd.url);
-    cy.get("#submitBlogBtn").click();
-    cy.get(".successNotification")
+it("Blog can be added when user is authenticated", function () {
+  cy.clearDB();
+  cy.registerTestUser(testUser);
+  cy.loginTestUser(testUser);
+  cy.visit(frontendBaseUrl);
+  // blog not on page before adding
+  cy.contains(testBlogToAdd.title).should("not.exist");
+  cy.get("#createBlogBtn").click();
+  cy.get(".titleInput").type(testBlogToAdd.title);
+  cy.get(".authorInput").type(testBlogToAdd.author);
+  cy.get(".urlInput").type(testBlogToAdd.url);
+  cy.get("#submitBlogBtn").click();
+  cy.get(".successNotification")
     .should("contain", "New blog added")
     .and("have.css", "color", "rgb(0, 128, 0)");
-    // add blog form gets hidden after submission
-    cy.get("#shownWhenVisible")
-    .should("have.css", "display", "none");
-    // blog on page after adding
-    cy.contains(testBlogToAdd.title);
+  // add blog form gets hidden after submission
+  cy.get("#shownWhenVisible").should("have.css", "display", "none");
+  // blog on page after adding
+  cy.contains(testBlogToAdd.title);
 });
