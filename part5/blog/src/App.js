@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import LoginForm from "./components/LoginForm";
 import AddBlogForm from "./components/AddBlogForm";
 import SingleBlog from "./components/SingleBlog";
@@ -7,31 +8,17 @@ import ErrorMsg from "./components/ErrorMsg";
 import LogoutElement from "./components/LogoutElement";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blog";
-import { isSorted } from "./common";
+import { handleBlogLike, addBlog, handleBlogRemove, initializeBlogs  } from "./reducers/blogsReducer";
 
 const App = () => {
   const [user, setUser] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [blogs, setBlogs] = useState([]);
 
-  const getBlogsHook = () => {
-    const getBlogs = async () => {
-      let blogs = await blogService.getAll();
-      setBlogs(blogs);
-    };
+  const dispatch = useDispatch();
+  const blogs = useSelector(state => state.blogs.sort((a, b) => b.likes- a.likes));
 
-    try {
-      getBlogs();
-    } catch (error) {
-      console.error("Got error when fetching blogs ", error);
-      setErrorMsg("Could not get blogs");
-      setTimeout(() => {
-        setErrorMsg(null);
-      }, 5000);
-    }
-  };
-
-  useEffect(getBlogsHook, []);
+  // TODO
+  useEffect(dispatch(initializeBlogs()), [dispatch]);
 
   const getUserFromLocalStorageHook = () => {
     const loggedUserJSONstring = window.localStorage.getItem("loggedInUser");
@@ -43,25 +30,6 @@ const App = () => {
   };
 
   useEffect(getUserFromLocalStorageHook, []);
-
-  // make sure blogs are sorted in descending order of likes
-  const keepBlogsSortedHook = () => {
-    if (!isSorted(blogs)) {
-      const blogsSorted = [...blogs].sort((a, b) => b.likes - a.likes);
-      setBlogs(blogsSorted);
-    }
-  };
-
-  useEffect(keepBlogsSortedHook, [blogs]);
-
-  const addBlogToggleRef = useRef();
-
-  const addBlog = async (newBlog) => {
-    addBlogToggleRef.current.toggleVisibility();
-    const addedBlog = await blogService.addNew(newBlog);
-    addedBlog.user = { name: user.name, username: user.username };
-    setBlogs(blogs.concat(addedBlog));
-  };
 
   const likeBtnHandler = (id, newLikeCount) => async () => {
     await blogService.updateLikes(id, newLikeCount);
@@ -103,7 +71,6 @@ const App = () => {
           >
             <AddBlogForm
               setErrorMsg={setErrorMsg}
-              addBlog={addBlog}
             />
           </Togglable>
           <section id="blogs">

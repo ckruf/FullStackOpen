@@ -4,8 +4,9 @@ import { InputStateSetter } from "../common";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { setNotification } from "../reducers/notificationReducer";
+import { addBlog } from "../reducers/blogsReducer";
 
-const AddBlogForm = ({setErrorMsg, addBlog }) => {
+const AddBlogForm = ({setErrorMsg }) => {
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogAuthor, setNewBlogAuthor] = useState("");
   const [newBlogUrl, setNewBlogUrl] = useState("");
@@ -19,7 +20,10 @@ const AddBlogForm = ({setErrorMsg, addBlog }) => {
         author: newBlogAuthor,
         url: newBlogUrl,
       };
-      await addBlog(newBlog);
+
+      // TODO - user must be added manually to the blog which is added when adding into
+      // state/redux store. On the server side this is added automatically via token,
+      addBlog(newBlog);
       dispatch(setNotification(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`, 5));
       setNewBlogTitle("");
       setNewBlogAuthor("");
