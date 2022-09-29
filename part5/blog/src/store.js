@@ -3,7 +3,6 @@ import notificationReducer from "./reducers/notificationReducer";
 import blogsReducer from "./reducers/blogsReducer";
 import togglableReducer from "./reducers/togglableReducer";
 import userReducer from "./reducers/userReducer";
-import errorMsgReducer from "./reducers/errorMsgReducer";
 
 const store = configureStore({
     reducer: {
@@ -11,7 +10,6 @@ const store = configureStore({
         blogs: blogsReducer,
         togglable: togglableReducer,
         user: userReducer,
-        errormessage: errorMsgReducer
     }
 })
 

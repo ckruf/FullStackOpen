@@ -4,7 +4,6 @@ import LoginForm from "./components/LoginForm";
 import AddBlogForm from "./components/AddBlogForm";
 import SingleBlog from "./components/SingleBlog";
 import Notification from "./components/Notification";
-import ErrorMsg from "./components/ErrorMsg";
 import LogoutElement from "./components/LogoutElement";
 import Togglable from "./components/Togglable";
 import { initializeBlogs  } from "./reducers/blogsReducer";
@@ -33,7 +32,6 @@ const App = () => {
       <h1>Blogs</h1>
 
       <Notification />
-      <ErrorMsg />
 
       {user === null ? (
         <LoginForm />

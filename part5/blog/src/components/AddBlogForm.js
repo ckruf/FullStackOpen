@@ -4,7 +4,6 @@ import { InputStateSetter } from "../common";
 import { useDispatch, useSelector } from "react-redux";
 import { setNotification } from "../reducers/notificationReducer";
 import { addBlog } from "../reducers/blogsReducer";
-import { setErrorMsg } from "../reducers/errorMsgReducer";
 
 const AddBlogForm = () => {
   const [newBlogTitle, setNewBlogTitle] = useState("");
@@ -22,7 +21,7 @@ const AddBlogForm = () => {
         url: newBlogUrl,
       };
       dispatch(addBlog(newBlog, user));
-      dispatch(setNotification(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`, 5));
+      dispatch(setNotification(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`, "success", 5));
       setNewBlogTitle("");
       setNewBlogAuthor("");
       setNewBlogUrl("");
@@ -30,9 +29,9 @@ const AddBlogForm = () => {
       console.error("Got an error while adding blog:");
       console.error(error);
       if (error.response.data.error) {
-        dispatch(setErrorMsg(error.response.data.error, 8));
+        dispatch(setNotification(error.response.data.error, "error", 8));
       } else {
-        dispatch(setErrorMsg("Adding blog failed", 8));
+        dispatch(setNotification("Adding blog failed", "error", 8));
       }
     }
   };
