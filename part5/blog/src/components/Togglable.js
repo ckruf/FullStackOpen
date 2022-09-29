@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../reducers/togglableReducer";
 import PropTypes from "prop-types";
 
-const Togglable = forwardRef((props, refs) => {
+const Togglable = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector(state => state.togglable);
 
@@ -24,7 +24,7 @@ const Togglable = forwardRef((props, refs) => {
       </div>
     </div>
   );
-});
+};
 
 Togglable.displayName = "Togglable";
 

@@ -1,4 +1,6 @@
-const ErrorMsg = ({ message }) => {
+import { useSelector } from "react-redux";
+
+const ErrorMsg = () => {
   const errorStyle = {
     color: "red",
     background: "lightgrey",
@@ -8,6 +10,14 @@ const ErrorMsg = ({ message }) => {
     padding: 10,
     marginBottom: 10,
   };
+
+  const message = useSelector(state => {
+    if (state.errormessage && state.errormessage.message) {
+      return state.errormessage.message;
+    } else {
+      return null;
+    }
+  })
 
   if (message === null) {
     return null;

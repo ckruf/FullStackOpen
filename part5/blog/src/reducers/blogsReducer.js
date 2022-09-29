@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { useSelector } from "react-redux";
 import blogService from "../services/blog";
 
 const blogSlice = createSlice({
@@ -36,30 +37,35 @@ export const { appendBlog, setBlogs, removeBlog, likeBlog } = blogSlice.actions;
 export const handleBlogLike = (id, newLikeCount) => {
     return async dispatch => {
         await blogService.updateLikes(id, newLikeCount);
-        likeBlog({id, newLikeCount});
+        dispatch(likeBlog({id, newLikeCount}));
     }
 }
 
-export const addBlog = (newBlog) => {
+export const addBlog = (newBlog, user) => {
     // TODO - user must be added manually to the blog which is added when adding into
     // state/redux store. On the server side this is added automatically via token,
     return async dispatch => {
         const response = await blogService.addNew(newBlog);
-        appendBlog(response);
+        response.user = { 
+            username: user.username,
+            name: user.name
+        }
+        dispatch(appendBlog(response));
     }
 }
 
-export const handleBlogRemove = (id) => {
+export const handleBlogRemove = (id, author, title) => {
     return async dispatch => {
+        if (window.confirm(`Remove blog ${author} - ${title}?`))
         await blogService.deleteById(id);
-        removeBlog(id);
+        dispatch(removeBlog(id));
     }
 }
 
 export const initializeBlogs = () => {
     return async dispatch => {
         const blogs = await blogService.getAll();
-        setBlogs(blogs);
+        dispatch(setBlogs(blogs));
     }
 }
 

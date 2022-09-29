@@ -1,16 +1,17 @@
 import { useState } from "react";
 import Input from "./Input";
 import { InputStateSetter } from "../common";
-import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setNotification } from "../reducers/notificationReducer";
 import { addBlog } from "../reducers/blogsReducer";
+import { setErrorMsg } from "../reducers/errorMsgReducer";
 
-const AddBlogForm = ({setErrorMsg }) => {
+const AddBlogForm = () => {
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogAuthor, setNewBlogAuthor] = useState("");
   const [newBlogUrl, setNewBlogUrl] = useState("");
   const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
 
   const handleBlogSubmit = async (event) => {
     event.preventDefault();
@@ -20,10 +21,7 @@ const AddBlogForm = ({setErrorMsg }) => {
         author: newBlogAuthor,
         url: newBlogUrl,
       };
-
-      // TODO - user must be added manually to the blog which is added when adding into
-      // state/redux store. On the server side this is added automatically via token,
-      addBlog(newBlog);
+      dispatch(addBlog(newBlog, user));
       dispatch(setNotification(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`, 5));
       setNewBlogTitle("");
       setNewBlogAuthor("");
@@ -32,13 +30,10 @@ const AddBlogForm = ({setErrorMsg }) => {
       console.error("Got an error while adding blog:");
       console.error(error);
       if (error.response.data.error) {
-        setErrorMsg(error.response.data.error);
+        dispatch(setErrorMsg(error.response.data.error, 8));
       } else {
-        setErrorMsg("Adding blog failed");
+        dispatch(setErrorMsg("Adding blog failed", 8));
       }
-      setTimeout(() => {
-        setErrorMsg(null);
-      }, 8000);
     }
   };
 
@@ -78,11 +73,6 @@ const AddBlogForm = ({setErrorMsg }) => {
       </div>
     </form>
   );
-};
-
-AddBlogForm.propTypes = {
-  setErrorMsg: PropTypes.func.isRequired,
-  addBlog: PropTypes.func.isRequired,
 };
 
 export default AddBlogForm;

@@ -1,33 +1,29 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import Input from "./Input";
 import { InputStateSetter } from "../common";
-import requestLogin from "../services/login";
-import blogService from "../services/blog";
+import { loginUser } from "../reducers/userReducer";
+import { setErrorMsg } from "../reducers/errorMsgReducer";
 
-const LoginForm = ({ setUser, setErrorMsg }) => {
+const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
 
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const user = await requestLogin({ username, password });
-      setUser(user);
-      blogService.setToken(user.token);
-      window.localStorage.setItem("loggedInUser", JSON.stringify(user));
+      dispatch(loginUser(username, password));
       setUsername("");
       setPassword("");
     } catch (error) {
       console.error("Got an error while logging in:");
       console.error(error);
       if (error.response.data.error) {
-        setErrorMsg(error.response.data.error);
+        dispatch(setErrorMsg(error.response.data.error, 8));
       } else {
-        setErrorMsg("Login failed");
+        dispatch(setErrorMsg("Login failed", 8));
       }
-      setTimeout(() => {
-        setErrorMsg(null);
-      }, 8000);
     }
   };
   return (

@@ -1,13 +1,14 @@
-const LogoutElement = ({ user, setUser }) => {
-  const logoutBtnHandler = () => {
-    setUser(null);
-    window.localStorage.removeItem("loggedInUser");
-  };
+import { useDispatch, useSelector } from "react-redux";
+import { removeUser } from "../reducers/userReducer";
+
+const LogoutElement = () => {
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
 
   return (
     <div>
       <p>{user.username} is logged in</p>
-      <button onClick={logoutBtnHandler}>Logout</button>
+      <button onClick={() => dispatch(removeUser())}>Logout</button>
     </div>
   );
 };
