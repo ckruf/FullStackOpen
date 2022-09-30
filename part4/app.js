@@ -8,6 +8,7 @@ const middleware = require("./utils/middleware");
 const blogApiRouter = require("./controllers/blog_api");
 const userApiRouter = require("./controllers/users_api");
 const loginApiRouter = require("./controllers/login_api");
+const commentApiRouter = require("./controllers/comment_api");
 
 logger.info("Connecting to ", config.MONGODB_URI);
 
@@ -26,6 +27,7 @@ app.use(middleware.requestLogger);
 app.use("/api/blogs", blogApiRouter);
 app.use("/api/users", userApiRouter);
 app.use("/api/login", loginApiRouter);
+app.use("/api/comment", commentApiRouter);
 
 // if we are running in test environment, expose testingApi EP for resetting database 
 if (process.env.NODE_ENV === "test") {
