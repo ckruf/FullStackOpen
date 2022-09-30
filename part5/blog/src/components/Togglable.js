@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 const Togglable = (props) => {
   const dispatch = useDispatch();
-  const visible = useSelector(state => state.togglable);
+  const visible = useSelector((state) => state.togglable);
 
   const hideWhenVisible = { display: visible ? "none" : "" };
   const showWhenVisible = { display: visible ? "" : "none" };

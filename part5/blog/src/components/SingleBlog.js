@@ -7,8 +7,10 @@ const SingleBlog = ({ blogId }) => {
   const [showComplete, setShowComplete] = useState(false);
   const dispatch = useDispatch();
 
-  const user = useSelector(state => state.user);
-  const blog = useSelector(state => state.blogs.find(blog => blog.id === blogId)); 
+  const user = useSelector((state) => state.user);
+  const blog = useSelector((state) =>
+    state.blogs.find((blog) => blog.id === blogId)
+  );
 
   const blogStyle = {
     paddingTop: 10,
@@ -54,7 +56,9 @@ const SingleBlog = ({ blogId }) => {
         <div className="blogRemover">
           <button
             className="removeBtn"
-            onClick={() => dispatch(handleBlogRemove(blog.id, blog.author, blog.title))}
+            onClick={() =>
+              dispatch(handleBlogRemove(blog.id, blog.author, blog.title))
+            }
           >
             remove
           </button>

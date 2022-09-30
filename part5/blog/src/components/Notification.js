@@ -21,28 +21,31 @@ const Notification = () => {
     marginBottom: 10,
   };
 
-  const message = useSelector(state => {
-    if (state.notification && state.notification.message){
-      return state.notification.message
+  const message = useSelector((state) => {
+    if (state.notification && state.notification.message) {
+      return state.notification.message;
     } else {
-      return null
+      return null;
     }
   });
 
-  const type = useSelector(state => {
-    if (state.notification && state.notification.type){
-      return state.notification.type
+  const type = useSelector((state) => {
+    if (state.notification && state.notification.type) {
+      return state.notification.type;
     } else {
-      return null
+      return null;
     }
-  })
+  });
 
   if (message === null) {
     return null;
   }
 
   return (
-    <div className="successNotification" style={type === "error" ? errorStyle : notificationStyle}>
+    <div
+      className="successNotification"
+      style={type === "error" ? errorStyle : notificationStyle}
+    >
       {message}
     </div>
   );

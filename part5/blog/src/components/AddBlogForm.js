@@ -10,7 +10,7 @@ const AddBlogForm = () => {
   const [newBlogAuthor, setNewBlogAuthor] = useState("");
   const [newBlogUrl, setNewBlogUrl] = useState("");
   const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
+  const user = useSelector((state) => state.user);
 
   const handleBlogSubmit = async (event) => {
     event.preventDefault();
@@ -21,7 +21,13 @@ const AddBlogForm = () => {
         url: newBlogUrl,
       };
       dispatch(addBlog(newBlog, user));
-      dispatch(setNotification(`New blog added: ${newBlogTitle} by ${newBlogAuthor}`, "success", 5));
+      dispatch(
+        setNotification(
+          `New blog added: ${newBlogTitle} by ${newBlogAuthor}`,
+          "success",
+          5
+        )
+      );
       setNewBlogTitle("");
       setNewBlogAuthor("");
       setNewBlogUrl("");
