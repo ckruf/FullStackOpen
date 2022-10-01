@@ -43,11 +43,7 @@ export const loginUser = (username, password) => {
     } catch (error) {
       console.error("Got an error while logging in:");
       console.error(error);
-      if (error.response.data.error) {
-        dispatch(setNotification(error.response.data.error, "error", 8));
-      } else {
-        dispatch(setNotification("Login failed", "error", 8));
-      }
+      dispatch(setNotification("Login failed", "error", 8));
     }
   };
 };

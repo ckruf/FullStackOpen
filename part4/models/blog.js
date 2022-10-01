@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema({
   author: String,
-  content: String,
+  content: {
+    type: String,
+    minLength: 4,
+    required: true
+  },
   created_datetime: Date
 })
 
@@ -30,14 +34,23 @@ const blogSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    comments: [commentSchema]
-});
+    comments: [commentSchema],
+  }, {
+    strict: true
+  });
 
 blogSchema.set("toJSON", {
     transform: (document, returnedObject) => {
         returnedObject.id = returnedObject._id.toString();
         delete returnedObject._id;
         delete returnedObject.__v;
+        if (returnedObject.comments) {
+          returnedObject.comments.forEach(comment => {
+            delete comment.author;  // comments are "anonymous ;-)"
+            comment.id = comment._id.toString();
+            delete comment._id;
+          })
+        }
     }
 })
 

@@ -1,4 +1,5 @@
 const blogApiRouter = require("express").Router();
+const { default: mongoose } = require("mongoose");
 const Blog = require("../models/blog");
 const logger = require("../utils/logger");
 const { tokenExtractor, userExtractor } = require("../utils/middleware");
@@ -30,6 +31,42 @@ blogApiRouter.post("", tokenExtractor, userExtractor, async (req, res, next) => 
         logger.error("Got an error while saving new blog to db");
         next(error);
     }
+});
+
+blogApiRouter.post("/:id/comments", tokenExtractor, userExtractor, async (req, res, next) => {
+  logger.info("POST comment");
+  const blogId = req.params.id;
+  logger.info("blogId: ", blogId)
+  const commentData = req.body;
+  logger.info("commentData: ", JSON.stringify(commentData));
+  let now = new Date();
+  commentData.author = req.user.username;
+  commentData.created_datetime = now;
+  commentData._id = mongoose.Types.ObjectId();
+
+
+  try {
+    let potentialBlog = await Blog.findById(blogId);
+    if (!potentialBlog) {
+      logger.info("No blog found with given id")
+      return res.status(404).json({error: "blog with given id does not exist"});
+    }
+    logger.info(`potentialBlog: ${JSON.stringify(potentialBlog)}`);
+    potentialBlog.comments.push(commentData);
+    await potentialBlog.save();
+    const jsonResponse = {
+      updatedBlog: potentialBlog,
+      newComment: {
+        id: commentData._id.toString(),
+        created_datetime: now.toISOString(),
+        content: commentData.content
+      }
+    }
+    return res.status(200).json(jsonResponse);
+  } catch (error) {
+    logger.error("Got an error while adding new comment to DB");
+    next(error);
+  }
 });
 
 
