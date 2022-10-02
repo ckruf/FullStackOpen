@@ -91,11 +91,17 @@ const typeDefs = gql`
     genres: [String!]!
   }
 
+  type AuthorWithBookCount {
+    name: String!
+    born: Int
+    bookCount: Int!
+  }
+
   type Query {
     authorCount: Int!
     bookCount: Int!
     allBooks: [Book!]!
-    allAuthors: [Author!]!
+    allAuthors: [AuthorWithBookCount!]!
   }
 `
 
@@ -104,7 +110,15 @@ const resolvers = {
     authorCount: () => authors.length,
     bookCount: () => books.length,
     allBooks: () => books,
-    allAuthors: () => authors
+    allAuthors: () => {
+      const authorBookCounts = books.reduce((counterObject, book) => {
+        let currentAuthorSum = counterObject.get(book.author) || 0;
+        counterObject.set(book.author, currentAuthorSum + 1);
+        return counterObject;
+      }, new Map());
+
+      return authors.map(author => ({...author, bookCount: authorBookCounts.get(author.name)}));
+    }
   }
 }
 
