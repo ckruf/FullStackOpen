@@ -1,4 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server')
+const { v1: uuid } = require("uuid");
 
 let authors = [
   {
@@ -100,8 +101,22 @@ const typeDefs = gql`
   type Query {
     authorCount: Int!
     bookCount: Int!
-    allBooks: [Book!]!
+    allBooks(author: String, genre: String): [Book!]!
     allAuthors: [AuthorWithBookCount!]!
+  }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
   }
 `
 
@@ -109,7 +124,17 @@ const resolvers = {
   Query: {
     authorCount: () => authors.length,
     bookCount: () => books.length,
-    allBooks: () => books,
+    allBooks: (root, args) => {
+      if (args.author) {
+        return books.filter(book => book.author === args.author);
+      }
+      else if (args.genre) {
+        return books.filter(book => book.genres.includes(args.genre));
+      }
+      else {
+        return books;
+      }
+    },
     allAuthors: () => {
       const authorBookCounts = books.reduce((counterObject, book) => {
         let currentAuthorSum = counterObject.get(book.author) || 0;
@@ -118,6 +143,29 @@ const resolvers = {
       }, new Map());
 
       return authors.map(author => ({...author, bookCount: authorBookCounts.get(author.name)}));
+    }
+  },
+  Mutation: {
+    addBook: (root, args) => {
+      const book = { ...args, id: uuid() }
+      books = books.concat(book);
+      if (!authors.includes(args.author)) {
+        const author = {
+          id: uuid(),
+          name: args.author
+        };
+        authors = authors.concat(author);
+      }
+      return book;
+    },
+    editAuthor: (root, args) => {
+      const author = authors.find(author => author.name === args.name);
+      if (!author) {
+        return null;
+      }
+      const updatedAuthor = { ...author, born: args.setBornTo};
+      authors = authors.map(a => (a.name === updatedAuthor.name ? updatedAuthor : a));
+      return updatedAuthor;
     }
   }
 }
