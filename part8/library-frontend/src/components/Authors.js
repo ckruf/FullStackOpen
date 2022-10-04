@@ -73,7 +73,8 @@ const Authors = (props) => {
         </tbody>
       </table>
       <h3>Set birthyear</h3>
-      <form onSubmit={handleSetYear}>
+      {props.token ? 
+        (<form onSubmit={handleSetYear}>
         <select name="authorSelect" onChange={changeOption}>
             <option>Choose author</option>
             {authors.map(a => (<option key={a.name} value={a.name}>{a.name}</option>))}
@@ -81,7 +82,9 @@ const Authors = (props) => {
         <label htmlFor="birthyear">born</label>
         <input  type="text" name="birthyear" onChange={({ target }) => setBirthYearInput(target.value)} />
         <input type="submit" value="submit" />
-      </form>
+        </form>)
+      : (<div>You must be logged in to edit author birthyear.</div>)
+      }
     </div>
   )
 }

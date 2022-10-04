@@ -50,12 +50,19 @@ const typeDefs = gql`
     value: String!
   }
 
+  type userRecommendations {
+    books: [Book!]!
+    favouriteGenre: String!
+  }
+
   type Query {
     authorCount: Int!
     bookCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [AuthorWithBookCount!]!
     me: User
+    distinctGenres: [String!]!
+    userRecommended: userRecommendations
   }
 
   type Mutation {
@@ -131,14 +138,14 @@ const resolvers = {
         {
           $unwind: "$author_details"
         }
-      ])
+      ]);
 
       const authors = aggregationResult.map(result => {
         return {
           bookCount: result.bookCount,
           name: result.author_details.name,
           born: result.author_details.born,
-          id: result.authr_details._id 
+          id: result.author_details._id 
         }
       })
 
@@ -146,6 +153,14 @@ const resolvers = {
     },
     me: (root, args, context) => {
       return context.currentUser;
+    },
+    distinctGenres: async (root, args) => {
+      return Book.distinct("genres");
+    },
+    userRecommended: async (root, args, context) => {
+      const favouriteGenre = context.currentUser.favouriteGenre;
+      const books = await Book.find({genres: favouriteGenre}).populate("author");
+      return { books, favouriteGenre }
     }
   },
   Mutation: {
