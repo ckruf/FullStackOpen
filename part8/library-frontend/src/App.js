@@ -5,14 +5,15 @@ import NewBook from './components/NewBook'
 import ErrorNotification from './components/ErrorNotification'
 import LoginForm from './components/LoginForm'
 import Recommendations from './components/Recommendations'
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useSubscription } from '@apollo/client'
+import { BOOK_ADDED } from './queries'
 
 const App = () => {
   const [page, setPage] = useState('authors');
   const [token, setToken] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const [currentFilter, setCurrentFilter] = useState(null);
+  const [currentFilter, setCurrentFilter] = useState("all");
 
   // need this to clear cache on logout
   const client = useApolloClient();
@@ -22,7 +23,14 @@ const App = () => {
     if (userTokenInStorage) {
       setToken(userTokenInStorage);
     }
-  }, [])
+  }, []);
+
+  // TODO - updating cache
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData);
+    }
+  })
 
   const handleLogout = () => {
     setToken(null);
