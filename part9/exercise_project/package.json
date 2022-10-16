@@ -1,12 +1,12 @@
 {
-  "name": "intro_project",
+  "name": "exercise_project",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "ts-node": "ts-node",
-    "multiply": "ts-node multiplier.ts",
-    "calculate": "ts-node calculate.ts"
+    "calculateBmi": "ts-node bmiCalculator.ts",
+    "exerciseCalculator": "ts-node exerciseCalculator.ts"
   },
   "author": "",
   "license": "ISC",
