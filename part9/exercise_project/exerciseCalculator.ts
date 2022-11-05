@@ -1,19 +1,22 @@
 type Rating = 1 | 2 | 3;
+type RatingDescription = "You've still got some work to do" | "You're on your way" | "Target reached, well done";
 
-interface exerciseAssessment {
-  periodLength: number,
-  trainingDays: number,
-  success: boolean,
-  rating: Rating,
-  ratingDescription: string,
-  target: number,
-  average: number
+export interface exerciseAssessment {
+  periodLength: number;
+  trainingDays: number;
+  success: boolean;
+  rating: Rating;
+  ratingDescription: RatingDescription;
+  target: number;
+  average: number;
 }
 
 interface exerciseInputs {
-  target: number,
-  dailyTrainingHours: Array<number>
+  target: number;
+  dailyTrainingHours: Array<number>;
 }
+
+
 
 const parseArguments = (args: Array<string>): exerciseInputs => {
   if (args.length < 4) throw new Error("Not enough arguments. USAGE: npm run calculateBmi target hoursDay1 [hoursDay2 ...]");
@@ -36,28 +39,28 @@ const parseArguments = (args: Array<string>): exerciseInputs => {
       }
     }
     return counterObject;
-  }, {target: null, dailyTrainingHours: []});
-}
+  }, {target: 0, dailyTrainingHours: [] as Array<number>});
+};
 
-const exerciseCalculator = (target: number, dailyTrainingHours: Array<number>): exerciseAssessment => {
+export const exerciseCalculator = (target: number, dailyTrainingHours: Array<number>): exerciseAssessment => {
   let totalHours = 0;
   let nonZeroCount = 0;
   
   dailyTrainingHours.forEach(dailyHours => {
     totalHours += dailyHours;
     if (dailyHours > 0) nonZeroCount++;
-  })
+  });
 
-  let averageDailyHours = totalHours / dailyTrainingHours.length;
-  let successRatio = averageDailyHours / target;
+  const averageDailyHours = totalHours / dailyTrainingHours.length;
+  const successRatio = averageDailyHours / target;
   let rating: Rating;
-  let ratingDescription;
+  let ratingDescription: RatingDescription;
 
 
 
   if (successRatio < 0.5) {
     rating = 1;
-    ratingDescription = "You've still got some work to do"
+    ratingDescription = "You've still got some work to do";
   } else if (successRatio < 1) {
     rating = 2;
     ratingDescription = "You're on your way";
@@ -74,20 +77,18 @@ const exerciseCalculator = (target: number, dailyTrainingHours: Array<number>): 
     ratingDescription,
     target,
     average: averageDailyHours
+  };
+};
+
+if (typeof require !== 'undefined' && require.main === module) {
+  try {
+    const { target, dailyTrainingHours } = parseArguments(process.argv);
+    console.log(exerciseCalculator(target, dailyTrainingHours));
+  } catch (error: unknown) {
+    let errorMessage = "Something bad happened.";
+    if (error instanceof Error) {
+      errorMessage += " Error: " + error.message;
+    }
+    console.log(errorMessage);
   }
 }
-
-try {
-  const { target, dailyTrainingHours } = parseArguments(process.argv);
-  console.log(exerciseCalculator(target, dailyTrainingHours));
-} catch (error: unknown) {
-  let errorMessage = "Something bad happened."
-  if (error instanceof Error) {
-    errorMessage += " Error: " + error.message;
-  }
-  console.log(errorMessage);
-}
-
-// necessary because otherwise const parseArguments in bmiCalculator.ts interferes with
-// const parseArguments in this file (weird) 
-export {}

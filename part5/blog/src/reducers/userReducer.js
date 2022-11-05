@@ -28,8 +28,7 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, removeUser, getUserFromLocalStorage } =
-  userSlice.actions;
+export const { setUser, removeUser, getUserFromLocalStorage } = userSlice.actions;
 
 export const loginUser = (username, password) => {
   // TODO add error handling (also for other actions)

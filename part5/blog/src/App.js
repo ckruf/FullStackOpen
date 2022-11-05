@@ -29,9 +29,6 @@ const App = () => {
   const selectedUserId = (userMatch && userMatch.params && userMatch.params.id) ? userMatch.params.id : null;
   const selectedBlogId = (blogMatch && blogMatch.params && blogMatch.params.id) ? blogMatch.params.id : null;
 
-  // TODO consider wrapping entire "/" view into single component and then rendering that component
-  // as the 'element' in the Route tag, rather than having all of the individual components,
-  // it looks a bit messy
   return (
     <div>
       <h1>Blogs</h1>
