@@ -95,9 +95,13 @@ We want to start by installing typescript as a dev dependency:
 
 ` npm install typescript --save-dev`
 
-We will then run `npm run tsc -- --init`. which will initialize the `tsconfig.json` file. The options we specify in this file will determine how strict the compiler will be with our code and typing.
+We will then run `npm run tsc -- --init`. which will initialize the `tsconfig.json` file. The options we specify in this file will determine how strict the compiler will be with our code and typing. 
+
+Our project files can then be compiled from Typescript to Javascript by running `npm run tsc`. The production build will then be generated in the location we specify in `outDir` in the `tsconfig.json` file.
 
 Another tool we might want to use is ESlint, which has support for Typescript, and enables to set more options. A particularly useful option, set by default when using ESLint with Typescript is `no-explicit-any`. This will ensure that all of our variables are properly typed.
+
+In order to get our server to restart when we make code changes, we previously used `nodemon`. The typescript equivalent is `npm install --save-dev ts-node-dev`.
 
 #### External libraries
 
@@ -160,6 +164,18 @@ if (!Array.isArray(vUnknown)) {
 
 let a1: unknown[] = vAny;
 ```
+
+#### Typeguards
+
+Typically we will probably want to factor type checking / narrowing functionality out into functions specific for that. *typeguards* are functions which have a type predicate and return a boolean. For example: 
+
+```
+const isString = (text: unknown): text is string => {
+  return typeof text === "string" || text instanceof String;
+};
+```
+
+The return type has form `argname is type`. 
 
 
 ### Asserting
