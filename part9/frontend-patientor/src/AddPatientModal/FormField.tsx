@@ -50,7 +50,10 @@ interface TextProps extends FieldProps {
   placeholder: string;
 }
 
-export const TextField = ({ field, label, placeholder }: TextProps) => (
+export const TextField = ({ field, form, label, placeholder }: TextProps) => {
+  console.log("field", field);
+  console.log("form", form);
+  return (
   <div style={{ marginBottom: "1em" }}>
     <TextFieldMUI
       fullWidth
@@ -62,7 +65,8 @@ export const TextField = ({ field, label, placeholder }: TextProps) => (
       <ErrorMessage name={field.name} />
     </Typography>
   </div>
-);
+  );
+};
 
 /*
   for exercises 9.24.-
