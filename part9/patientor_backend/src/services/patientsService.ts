@@ -18,13 +18,17 @@ const addPatient = (newPatientData: NewPatient): Patient => {
   const id = uuid();
   const newPatient = {
     id,
-    ...newPatientData
+    ...newPatientData,
   };
   patientsData.push(newPatient);
   return newPatient;
 };
 
+const getSinglePatientDetail = (id: string): Patient | undefined => patientsData.find(patient => patient.id === id)
+
+
 export default {
   getAllPatientsPublic,
-  addPatient
+  addPatient,
+  getSinglePatientDetail
 };

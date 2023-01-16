@@ -1,4 +1,4 @@
-import { NewPatient, Gender } from "./types";
+import { NewPatient, Gender, Entry } from "./types";
 
 const isString = (text: unknown): text is string => {
   return typeof text === "string" || text instanceof String;
@@ -35,16 +35,44 @@ const parseGender = (gender: unknown): Gender => {
   return gender;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isEntry = (param: any): param is Entry => {
+  return Object.keys(param).length === 0;
+}
+
+const parseEntry = (entry: unknown): Entry => {
+  if (!entry || !isEntry(entry)) {
+    throw new Error("Incorrect or missing entry: " + entry)
+  }
+  return entry;
+}
+
+const isArray = (array: unknown): array is Array<any> => {
+  return Array.isArray(array);
+}
+
+const parseEntryArray = (entryArray: unknown): Entry[] => {
+  if (!entryArray || !isArray(entryArray)) {
+    throw new Error("Incorrect or missing entry array: " + entryArray);
+  }
+
+  return entryArray.map(parseEntry);
+}
+
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toNewPatient = (incomingData: any): NewPatient => {
+  if (!incomingData.entries) {
+    incomingData.entries = [];
+  }
   const newPatient: NewPatient = {
     name: parseString(incomingData.name),
     dateOfBirth: parseDate(incomingData.dateOfBirth),
     ssn: parseString(incomingData.ssn),
     gender: parseGender(incomingData.gender),
-    occupation: parseString(incomingData.occupation) 
+    occupation: parseString(incomingData.occupation),
+    entries: parseEntryArray(incomingData.entries)
   };
 
   return newPatient;
